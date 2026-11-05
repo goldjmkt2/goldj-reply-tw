@@ -34,7 +34,7 @@ h2{font-size:13px;letter-spacing:.06em;text-transform:uppercase;color:var(--mute
 .panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:12px;min-width:0}
 .grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:16px;align-items:start}
 @media (max-width:820px){.grid{grid-template-columns:minmax(0,1fr)}}
-textarea,input[type=text],input[type=number],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
+textarea,input[type=text],input[type=password],input[type=number],select{width:100%;font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:9px 10px}
 textarea{min-height:150px;resize:vertical;font-family:var(--f-zh)}
 textarea:focus,input:focus,select:focus,button:focus-visible,summary:focus-visible{outline:2px solid var(--gold);outline-offset:1px}
 button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink);padding:8px 14px}
@@ -90,6 +90,11 @@ td input{padding:6px 8px}
 #addMsg.ok{color:var(--ok);font-weight:700}
 tr.new td{background:var(--gold-soft);transition:background 1.5s}
 input[aria-invalid="true"]{border-color:var(--warn)}
+.aibox{border-top:1px dashed var(--line);padding-top:12px;display:grid;gap:8px}
+.aibox p{margin:0}
+button.ai{border-color:var(--gold);color:var(--gold);font-weight:700}
+#aiStatus{margin:0}
+#aiStatus.err{color:var(--warn);font-weight:700}
 .savebar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;border-top:1px solid var(--line);padding-top:12px}
 .savebar .dirty{color:var(--warn)}
 .selchip{display:inline-flex;align-items:center;gap:6px;font-size:13px;padding:4px 6px 4px 12px;border-radius:999px;background:var(--gold-soft);border:1px solid var(--gold)}
@@ -109,7 +114,7 @@ input[aria-invalid="true"]{border-color:var(--warn)}
   details#settingsBox .setbody{margin-top:0}
   .refs{position:static}
   .panel{padding:14px;border-radius:12px}
-  input[type=text],input[type=number],select,textarea{font-size:16px}
+  input[type=text],input[type=password],input[type=number],select,textarea{font-size:16px}
   button{min-height:44px;padding:10px 16px}
   .chip{font-size:13px;padding:8px 12px;min-height:36px}
   #post{min-height:200px}
@@ -143,14 +148,14 @@ input[aria-invalid="true"]{border-color:var(--warn)}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
-<style>body{margin:0}[hidden]{display:none!important}.langnav{display:flex;gap:4px;border:1px solid var(--line);border-radius:999px;padding:3px;background:var(--panel)}.langnav a{padding:5px 14px;border-radius:999px;color:var(--muted);text-decoration:none;font-size:13px}.langnav a[aria-current]{background:var(--gold);color:var(--panel);font-weight:700}</style>
+<style>body{margin:0}[hidden]{display:none!important}</style>
 </head>
 <body>
 <div class="wrap">
   <header>
     <div>
       <h1>골드제이 <span>스레드 답글기</span> <small class="lang">臺灣</small></h1>
-      <p class="sub">대만 스레드 원글을 붙여넣으면 유형을 분류하고 번체 중국어 답글과 한국어 해석을 만들어요.</p>
+      <p class="sub">대만 스레드 원글을 붙여넣으면 유형을 분류하고 번체 중국어 답글과 한국어 해석을 만들어요. 피부 글뿐 아니라 여행·일상 글에도 답할 수 있어요.</p>
     </div>
   </header>
 
@@ -163,7 +168,7 @@ input[aria-invalid="true"]{border-color:var(--warn)}
       <label for="sClinic">병원명 (중국어 표기)<input type="text" id="sClinic"></label>
       <label for="sClinicKo">병원명 (한국어)<input type="text" id="sClinicKo"></label>
       <label for="sCity">병원 도시 (중국어)<input type="text" id="sCity" placeholder="首爾"></label>
-      <label for="sLoc">위치 (중국어) — 예: 江南站○號出口步行3分鐘<input type="text" id="sLoc"></label>
+      <label for="sLoc">위치 (중국어) — 예: 江南宣陵站1號出口附近<input type="text" id="sLoc"></label>
       <label for="sLocKo">위치 (한국어)<input type="text" id="sLocKo"></label>
       <label for="sRate">환율 (1원 = NT$)<input type="number" step="0.0001" id="sRate"></label>
       <label for="sTax">가격 부가세 표기<select id="sTax"><option value="">표시 안 함</option><option value="含稅">含稅 (부가세 포함)</option><option value="未稅">未稅 (부가세 별도)</option></select></label>
@@ -171,6 +176,7 @@ input[aria-invalid="true"]{border-color:var(--warn)}
     <div class="row">
       <label class="check"><input type="checkbox" id="sZh">중국어 상담 가능</label>
       <label class="check"><input type="checkbox" id="sDoc">원장 직접 상담·시술</label>
+      <label class="check"><input type="checkbox" id="sPromo">여행·일상 글 답글에 시술 한 줄 넣기</label>
     </div>
     <div class="tablewrap">
       <table>
@@ -195,6 +201,16 @@ input[aria-invalid="true"]{border-color:var(--warn)}
       </details>
     </div>
     <p class="kw" id="addMsg" style="margin:0"></p>
+    <div class="aibox">
+      <b>AI 맞춤 답글</b>
+      <p class="kw">답글 말투 기준: 실제 답글 예시 <b id="exCount"></b> · 마지막 업데이트 <b id="exDate"></b></p>
+      <p class="kw">Anthropic API 키를 넣으면 답글 칸의 ‘AI 맞춤 답글’ 버튼과 원글 한국어 해석이 켜져요. 키는 이 브라우저에만 저장되고, 대만·일본·영어 답글기에서 같이 써요. 사용한 만큼 API 요금이 나가요.</p>
+      <div class="form">
+        <label for="aiKey">API 키<input type="password" id="aiKey" autocomplete="off" placeholder="sk-ant-..."></label>
+        <label for="aiModel">AI 모델<select id="aiModel"><option value="claude-sonnet-5-5">Sonnet 5.5 (추천 · 문장 품질)</option><option value="claude-haiku-5-5">Haiku 5.5 (저렴 · 빠름)</option><option value="claude-opus-5-5">Opus 5.5 (최고 품질 · 비쌈)</option></select></label>
+      </div>
+      <div class="row"><button type="button" id="aiSaveBtn">키 저장</button><button type="button" id="aiDelBtn" class="del">키 삭제</button><span class="kw" id="aiMsg"></span></div>
+    </div>
     <div class="savebar">
       <button class="primary" id="saveBtn" type="button">저장</button>
       <span class="kw" id="saveMsg">가격을 넣고 저장하면 답글 칸의 ‘가격 넣기’에서 고를 수 있어요.</span>
@@ -207,7 +223,6 @@ input[aria-invalid="true"]{border-color:var(--warn)}
     <section class="panel" aria-labelledby="inTitle" data-pane="in">
       <h2 id="inTitle">1. 원글</h2>
       <p class="mobile-only kw" style="margin:0">원글 칸을 길게 눌러 붙여넣은 뒤 ‘답글 만들기’를 누르세요.</p>
-      <div class="chips" id="samples"></div>
       <textarea id="post" placeholder="스레드 원글을 붙여넣으세요 (중국어·한국어 모두 가능)"></textarea>
       <div class="postko" id="postKo" hidden aria-live="polite"><span class="lbl">한국어 해석</span><span id="postKoText"></span></div>
       <div class="row">
@@ -221,12 +236,16 @@ input[aria-invalid="true"]{border-color:var(--warn)}
       <div class="row" style="justify-content:space-between">
         <h2 id="outTitle">2. 답글</h2>
         <div class="row">
+          <button id="aiBtn" class="ai" disabled>AI 맞춤 답글</button>
+          <button id="aiUndo" hidden>기본 답글로</button>
           <button id="rerollBtn" disabled>문구 바꾸기</button>
         </div>
       </div>
       <div class="mobile-only typeline"><span id="typeLine">아직 만든 답글이 없어요.</span><button type="button" id="typeBtn">유형 바꾸기</button></div>
       <textarea class="out edit" id="outZh" aria-label="중국어 답글 (직접 수정 가능)" placeholder="원글을 넣고 ‘답글 만들기’를 누르세요."></textarea>
       <p class="kw" id="editHint" style="margin:-4px 0 0">답글 칸을 눌러 바로 고칠 수 있어요. 수정한 내용 그대로 복사돼요.</p>
+      <p class="kw" id="srcNote" style="margin:0"></p>
+      <p class="kw" id="aiStatus" aria-live="polite"></p>
       <div class="row copyrow">
         <button class="primary" id="copyBtn" disabled>중국어 답글 복사</button>
         <span class="kw" id="copyMsg"></span>
@@ -270,20 +289,29 @@ let seed=1; const rnd=()=>Math.random();
 
 /* ---------- 시술 · 고민 ---------- */
 const CONCERNS={
-  lift:{zh:"下顎線不清、鬆弛下垂",ko:"턱선·처짐",kw:["下垂","鬆弛","下顎線","拉提","輪廓","臉拋腫","臉腫","雙下巴","法令紋","緊緻","垮","턱선","처짐","리프팅"]},
+  lift:{zh:"鬆弛下垂、輪廓線",ko:"처짐·턱선",kw:["下垂","鬆弛","下顎線","拉提","輪廓","臉拋腫","臉腫","雙下巴","法令紋","緊緻","垮","턱선","처짐","리프팅"]},
   wrinkle:{zh:"細紋",ko:"잔주름",kw:["細紋","皺紋","紋路","眼周","주름"]},
-  pore:{zh:"毛孔粗大、痘疤",ko:"모공·흉터",kw:["毛孔","痘疤","痘印","坑洞","痘痘","粗大","모공","흉터"]},
-  repair:{zh:"膚質、修復",ko:"피부결·재생",kw:["修復","屏障","敏感","乾燥","水光","膚質","保濕","水煮蛋","피부결"]},
+  pore:{zh:"毛孔粗大、痘疤痘印",ko:"모공·흉터",kw:["毛孔","痘疤","痘印","坑洞","痘痘","長痘","粗大","粉刺","모공","흉터"]},
+  repair:{zh:"膚質、保濕修護",ko:"피부결·재생",kw:["修復","修護","屏障","敏感","乾燥","外油內乾","出油","水光","膚質","保濕","水煮蛋","피부결"]},
   elastic:{zh:"彈力不足、凹陷",ko:"탄력·볼륨",kw:["彈力","凹陷","膨潤","膠原","탄력"]},
-  dull:{zh:"暗沉、氣色差",ko:"칙칙함",kw:["暗沉","蠟黃","透亮","膚色","氣色","提亮","칙칙"]}
+  dull:{zh:"暗沉、氣色差",ko:"칙칙함",kw:["暗沉","蠟黃","透亮","膚色","氣色","提亮","칙칙"]},
+  lip:{zh:"唇形、豐唇",ko:"입술",kw:["嘴唇","唇形","豐唇","微笑唇","嘟嘟唇","唇部","唇線","厚唇","薄唇","打嘴唇","touch up kiss","입술"]},
+  filler:{zh:"凹陷、輪廓填充",ko:"필러(코·턱·눈밑)",kw:["鼻子","隆鼻","下巴","眼下","淚溝","眼下凹陷","填充","玻尿酸","필러"]},
+  face:{zh:"臉型寬、方圓臉",ko:"얼굴형·사각턱",kw:["方圓臉","國字臉","咀嚼肌","臉寬","大臉","瘦臉","瘦臉肉毒","사각턱"]}
 };
 const PROCS=[
-  {id:"ulthera",ko:"울쎄라",zh:"美版音波 Ulthera",unit:"300發",c:["lift"],effZh:"拉提、改善下顎線",effKo:"리프팅·턱선",alias:["美版音波","美國音波","美音","ulthera","ultherapy","울쎄라"]},
+  {id:"ulthera",ko:"울쎄라",zh:"Ultherapy PRIME 美版音波",unit:"300發",c:["lift"],effZh:"深層拉提、改善輪廓線",effKo:"리프팅·턱선",alias:["美版音波","美國音波","美音","音波","ulthera","ultherapy","울쎄라"]},
+  {id:"thermage",ko:"써마지 FLX",zh:"Thermage FLX 電波",unit:"",c:["lift","wrinkle"],effZh:"緊緻肌膚、改善細紋及膚質",effKo:"탄력·잔주름·피부결",alias:["電波","鳳凰電波","thermage","써마지"]},
   {id:"tune",ko:"튠라이너",zh:"Tune Liner",unit:"",c:["lift"],effZh:"輪廓、下顎線",effKo:"윤곽·턱선",alias:["tune liner","튠라이너"]},
   {id:"sofwave",ko:"소프웨이브",zh:"Sofwave",unit:"",c:["wrinkle","lift"],effZh:"細紋、緊緻",effKo:"잔주름·탄력",alias:["sofwave","소프웨이브"]},
   {id:"juvecell",ko:"쥬브아셀",zh:"Juvecell",unit:"",c:["wrinkle"],effZh:"細紋",effKo:"잔주름",alias:["juvecell","쥬브아셀"]},
   {id:"juvelook",ko:"쥬베룩",zh:"喬雅露 Juvelook",unit:"1cc",c:["pore","repair"],effZh:"毛孔、膚質",effKo:"모공·피부결",alias:["喬雅露","juvelook","쥬베룩"]},
-  {id:"potenza",ko:"포텐자쥬베룩",zh:"黃金微針＋喬雅露",unit:"",c:["pore"],effZh:"痘疤、毛孔",effKo:"여드름 흉터·모공",alias:["黃金微針","potenza","포텐자"]},
+  {id:"potenza",ko:"포텐자쥬베룩",zh:"黃金微針＋喬雅露 Juvelook",unit:"",c:["pore"],effZh:"毛孔粗大、痘印痘疤、膚質粗糙",effKo:"모공·여드름 흉터·피부결",alias:["黃金微針","potenza","포텐자"]},
+  {id:"exo",ko:"포텐자 엑소좀",zh:"黃金微針＋外泌體",unit:"",c:["pore"],effZh:"反覆長痘、痘印",effKo:"반복 여드름·자국",alias:["外泌體","exosome","엑소좀"]},
+  {id:"tuk",ko:"터치업키스",zh:"GOLD J Touch-up Kiss 唇部玻尿酸",unit:"",c:["lip"],effZh:"依原生唇形與五官比例設計，兼顧唇部中央飽滿度與唇線細節",effKo:"원래 입술 모양·이목구비 비율에 맞춘 디자인, 중앙 볼륨·입술선",alias:["touch up kiss","touch-up kiss","補妝唇","唇部玻尿酸","터치업키스"]},
+  {id:"lipwide",ko:"가로확장입술필러",zh:"唇部橫向擴展填充",unit:"",c:["lip"],effZh:"重視唇部橫向輪廓、整體比例及嘴角線條",effKo:"입술 가로 윤곽·비율·입꼬리 라인",alias:["橫向擴展","가로확장"]},
+  {id:"filler",ko:"필러",zh:"玻尿酸填充",unit:"1cc",c:["filler"],effZh:"改善凹陷、依五官比例自然塑形",effKo:"꺼짐 개선·비율에 맞춘 볼륨",alias:["玻尿酸","填充","필러"]},
+  {id:"botox_face",ko:"사각턱 보톡스",zh:"瘦臉肉毒（咀嚼肌）",unit:"",c:["face"],effZh:"放鬆咀嚼肌、修飾臉型線條",effKo:"저작근 완화·얼굴선 정리",alias:["瘦臉肉毒","咀嚼肌肉毒","肉毒","보톡스"]},
   {id:"mirajet",ko:"미라젯쥬베룩",zh:"Mirajet＋喬雅露",unit:"",c:["pore"],effZh:"痘疤",effKo:"여드름 흉터",alias:["mirajet","미라젯"]},
   {id:"rejuran",ko:"리쥬란",zh:"麗珠蘭 Rejuran",unit:"1cc",c:["repair"],effZh:"修復、膚質細緻",effKo:"재생·피부결",alias:["麗珠蘭","rejuran","리쥬란"]},
   {id:"re2o",ko:"리투오",zh:"Re2O",unit:"",c:["repair","elastic"],effZh:"屏障、彈力",effKo:"피부장벽·탄력",alias:["re2o","리투오"]},
@@ -292,29 +320,31 @@ const PROCS=[
   {id:"oxygen",ko:"고압산소",zh:"高壓氧",unit:"",c:["dull"],effZh:"氣色、透亮",effKo:"혈색·광채",alias:["高壓氧","고압산소"]}
 ];
 function ALL(){return PROCS.concat(S.custom||[]);}
-const MED=["醫美","皮膚科","診所","音波","電波","微針","肉毒","玻尿酸","水光","療程","打","做了","피부과","시술"];
+const MED=["醫美","皮膚科","診所","音波","電波","微針","肉毒","玻尿酸","水光","療程","麻藥","術後","打完","피부과","시술"];
 
 /* ---------- 유형 ---------- */
 const TYPES={
   T1:{name:"병원 추천 요청",kw:["推薦","求推","哪間","哪家","診所","非流水","流水線","不想被推銷","推銷","怎麼挑","挑醫美","추천","피부과 있"]},
-  T2:{name:"가격 문의·비교",kw:["多少錢","價格","價錢","報價","台幣","韓幣","韓元","便宜","很卷","半價","划算","活動價","가격","얼마"]},
-  T3:{name:"나이·고민별 추천",kw:["歲","35+","30+","25","推薦什麼","做什麼","該做","第一次"]},
-  T4:{name:"후기·조합 추천 글",kw:["我做了","記住我說的","必做","有感","組合","心得","做完","我推","我半年"]},
-  T5:{name:"시술 상식 질문",kw:["幾次","多久","維持","間隔","發數","300發","600發","800發","專科","有差嗎","為什麼","差別","效果會"]},
-  T6:{name:"통증·통역 걱정",kw:["怕痛","痛嗎","會痛","麻醉","中文","翻譯","不會韓文","溝通","第一次去韓國"]},
+  T2:{name:"가격 문의·비교",kw:["多少錢","價格","價錢","報價","台幣","韓幣","韓元","便宜","很卷","半價","划算","活動價","優惠","가격","얼마"]},
+  T3:{name:"나이·고민별 추천",kw:["歲","35+","30+","25","推薦什麼","做什麼","該做","第一次","只能選一個"]},
+  T4:{name:"후기·조합 추천 글",kw:["我做了","記住我說的","必做","有感","組合","搭配","一起做","心得","做完","我推","我半年"]},
+  T5:{name:"시술 상식 질문",kw:["幾次","多久","維持","間隔","發數","300發","600發","800發","能量","專科","有差嗎","為什麼","差別","效果會"]},
+  T6:{name:"통증·통역 걱정",kw:["怕痛","痛嗎","會痛","很痛","痛","好怕","害怕","可怕","麻醉","麻藥","中文","翻譯","不會韓文","溝通","第一次去韓國"]},
   T7:{name:"만족 시술 설문",kw:["最滿意","最推","大家都做","哪個項目"]},
-  T9:{name:"적합 여부 질문",kw:["適合","什麼樣的臉","什麼樣的人","會小嗎","有用嗎","真的會","有效嗎","值得","該打","還是","哪種"]},
-  T10:{name:"피부관리·홈케어",kw:["秘訣","保養","底妝","皮膚好","皮膚都好","居家","保養品","防曬","磨皮","水煮蛋肌"]},
+  T9:{name:"적합 여부 질문",kw:["適合","什麼樣的臉","什麼樣的人","會小嗎","有用嗎","真的會","有效嗎","值得","該打","還是","哪種","冬天做"]},
+  T10:{name:"피부관리·홈케어",kw:["秘訣","保養","保養品","護膚品","底妝","皮膚好","皮膚都好","居家","防曬","磨皮","水煮蛋肌","外油內乾"]},
+  T14:{name:"필러 문의 (입술·코·턱·눈밑)",kw:["嘴唇","唇形","豐唇","微笑唇","嘟嘟唇","唇部玻尿酸","打嘴唇","touch up kiss","鼻子","隆鼻","下巴","眼下凹陷","淚溝","填充"]},
   T11:{name:"우리에 없는 시술 문의",kw:[]},
-  T12:{name:"서울 외 지역 질문",kw:["釜山","부산","大邱","濟州","海雲台","西面"]},
-  T8:{name:"일상·비시술 글",kw:[]}
+  T12:{name:"서울 외 지역 병원 질문",kw:[]},
+  T13:{name:"여행·일상 질문 (피부 외)",kw:["行程","旅遊","旅行","自由行","天氣","穿搭","穿什麼","冷","保暖","溫差","美食","好吃","餐廳","景點","楓葉","賞楓","下雪","初雪","咖啡廳","逛街","韓國玩","去韓國","來首爾","首爾","帶長輩","第一次來","住宿","住哪","飯店","現金","刷卡","換錢","預算","一個人","獨旅","航空","機票","聖誕","購物","超市"]},
+  T8:{name:"일상·잡담 글",kw:[]}
 };
-const PRIORITY=["T12","T7","T6","T9","T5","T10","T1","T2","T3","T4"];
+const PRIORITY=["T7","T14","T6","T2","T9","T5","T10","T1","T3","T4"];
 
 /* ---------- 설정 ---------- */
-const DEF={clinic:"GOLD J 皮膚科",clinicKo:"골드제이의원",city:"首爾",loc:"",locKo:"",rate:0.0245,tax:"",zh:true,doc:true,procs:{},custom:[]};
+const DEF={ver:2,clinic:"GOLD J Clinic",clinicKo:"골드제이의원",city:"首爾",loc:"江南宣陵站1號出口附近",locKo:"강남 선릉역 1번 출구 근처",promo:true,rate:0.0245,tax:"",zh:true,doc:true,procs:{},custom:[]};
 let S=load();
-function load(){try{const v=JSON.parse(localStorage.getItem("gj-reply-settings")||"null");if(v)return Object.assign({},DEF,v,{procs:Object.assign({},v.procs||{}),custom:Array.isArray(v.custom)?v.custom:[]});}catch(e){}return JSON.parse(JSON.stringify(DEF));}
+function load(){try{const v=JSON.parse(localStorage.getItem("gj-reply-settings")||"null");if(v&&!(v.ver>=2)){if(!v.clinic||v.clinic==="GOLD J 皮膚科")v.clinic="GOLD J Clinic";if(!v.loc){v.loc=DEF.loc;v.locKo=DEF.locKo;}v.ver=2;}if(v)return Object.assign({},DEF,v,{procs:Object.assign({},v.procs||{}),custom:Array.isArray(v.custom)?v.custom:[]});}catch(e){}return JSON.parse(JSON.stringify(DEF));}
 function save(){try{localStorage.setItem("gj-reply-settings",JSON.stringify(S));}catch(e){} status();}
 function P(p){const o=S.procs[p.id]||{};return {zh:o.zh||p.zh,unit:o.unit!==undefined?o.unit:p.unit,krw:o.krw||""};}
 function status(){const miss=[];if(!S.loc)miss.push("위치");if(!ALL().some(p=>P(p).krw))miss.push("가격");$("setStatus").textContent=miss.length?"· 비어 있음: "+miss.join(", "):"· 입력 완료";}
@@ -322,7 +352,7 @@ const FIELDS={sClinic:"clinic",sClinicKo:"clinicKo",sLoc:"loc",sLocKo:"locKo",sR
 function markDirty(){$("saveMsg").textContent="저장하지 않은 변경이 있어요.";$("saveMsg").className="kw dirty";}
 function commit(){
   for(const [id,k] of Object.entries(FIELDS)){const v=$(id).value.trim();S[k]=k==="rate"?(parseFloat(v)||0):v;}
-  S.zh=$("sZh").checked;S.doc=$("sDoc").checked;
+  S.zh=$("sZh").checked;S.doc=$("sDoc").checked;S.promo=$("sPromo").checked;
   ALL().forEach(p=>{const o=S.procs[p.id]=S.procs[p.id]||{};o.zh=$("pz-"+p.id).value.trim();o.unit=$("pu-"+p.id).value.trim();o.krw=$("pk-"+p.id).value.replace(/[^0-9]/g,"");});
 }
 function saveAll(msg){
@@ -333,7 +363,7 @@ function saveAll(msg){
 }
 function bindSettings(){
   for(const [id,k] of Object.entries(FIELDS)){$(id).value=S[k]??"";$(id).addEventListener("input",markDirty);$(id).addEventListener("change",markDirty);}
-  for(const [id,k] of [["sZh","zh"],["sDoc","doc"]]){$(id).checked=!!S[k];$(id).addEventListener("change",markDirty);}
+  for(const [id,k] of [["sZh","zh"],["sDoc","doc"],["sPromo","promo"]]){$(id).checked=!!S[k];$(id).addEventListener("change",markDirty);}
   renderRows();
   $("nCat").innerHTML=Object.entries(CONCERNS).map(([k,v])=>`<option value="${k}">${v.ko}</option>`).join("")+`<option value="other">기타</option>`;
   $("addBtn").addEventListener("click",addProc);
@@ -388,61 +418,68 @@ function analyze(text){
   for(const [k,v] of Object.entries(TYPES)){hits[k]=v.kw.filter(w=>t.includes(w.toLowerCase()));scores[k]=hits[k].length;}
   const concerns=Object.entries(CONCERNS).filter(([k,v])=>v.kw.some(w=>t.includes(w.toLowerCase()))).map(([k])=>k);
   const procs=ALL().filter(p=>p.alias.some(a=>t.includes(a.toLowerCase()))).map(p=>p.id);
-  const medical=MED.some(w=>t.includes(w))||concerns.length||procs.length;
+  const medical=!!(MED.some(w=>t.includes(w))||concerns.length||procs.length);
   let type="T8",best=0;
   if(scores.T7>0)type="T7";
   else{for(const k of PRIORITY){if(scores[k]>best){best=scores[k];type=k;}}
     if(type==="T8"&&medical)type=concerns.length?"T3":"T1";
     if(scores.T3>0&&concerns.length&&(type==="T1"||type==="T4")&&scores.T3>=scores[type])type="T3";}
-  const wantsPrice=scores.T2>0;
-  const busan=/釜山|부산|大邱|濟州|海雲台|西面/.test(text)&&!(S.city&&text.includes(S.city))&&!/首爾|서울/.test(text);
+  if(!medical&&scores.T13>0&&type!=="T10")type="T13";
+  else if(!medical&&!["T10","T13","T8"].includes(type))type="T8";
+  const chat=type==="T13"&&!/[?？]|行程|要去|要來|來首爾|去韓國|第一次|推薦|穿什麼|怎麼穿|請問|求/.test(text);
+  const wantsPrice=scores.T2>0&&medical;
+  const busan=medical&&/釜山|부산|大邱|濟州|海雲台|西面/.test(text)&&!(S.city&&text.includes(S.city))&&!/首爾|서울/.test(text);
   if(busan)type="T12";
   const rm=text.match(/釜山|大邱|濟州|海雲台|西面/);const region=rm?({"海雲台":"釜山","西面":"釜山"}[rm[0]]||rm[0]):"";
-  return {type,scores,hits,concerns,procs,wantsPrice,busan,medical,region};
+  return {type,scores,hits,concerns,procs,wantsPrice,busan,medical,region,chat};
 }
 
-/* ---------- 문구 조각 {zh,ko} — 골드제이 하우스 스타일 ----------
-   경쟁사 답글은 구조만 참고. 문구·이모지는 매번 아래 풀에서 섞어서 씀.
-   경쟁사 시그니처(🌸 가격줄, 💛 나이표시, 水水/寶寶/脆蜜 호칭)는 쓰지 않음. */
+/* ---------- 문구 조각 {zh,ko} — 골드제이 대만 계정 실제 답글 스타일 (2026-11 반영) ----------
+   기준: '대만답변 최신.txt' (우리가 실제로 다는 답글). 경쟁사 시그니처(🌸 가격줄, 💛 나이표시, 水水/寶寶/脆蜜)는 쓰지 않음.
+   톤: 다정하고 수다스러운 말투, 문장 끝 哦～/喔～/唷～/呀～/啦～, 이모지 2~4개. */
 const EMO={
-  face:["😊","🙌","✨","🤍","👀","🙋‍♀️","😉"],
-  bul:["▫️","•","🔸","✔️","▸"],
-  ok:["✅","⭕️","👌"], ng:["❌","⚠️"],
-  tip:["📌","👉","💬","☝️"],
-  end:["✨","🤍","🧡","🙌","😊"],
-  price:["💰","🏷️","📋"]
+  face:["🥰","💕","🤍","😊","🥹","✨","🥰🤍","😊💕"],
+  bul:["• ","▫️ ","✔️ ","- "],
+  ok:["✅","✔️","👉"], ng:["❌","⚠️"],
+  tip:["👉","📌","💡"],
+  end:["🥰","💕","🤍","😊","✨","🥰💕"],
+  price:["💰","📋","🏷️"]
 };
 let E={};
 function newStyle(){E={};for(const k in EMO)E[k]=pick(EMO[k],rnd);E.pf=pick([0,1,2],rnd);}
 const V=arr=>pick(arr,rnd);
 const OPEN={
-  T1:[{zh:"這題我們很有感{E}",ko:"이건 저희가 할 말이 많아요{E}"},{zh:"選診所真的要做點功課{E}",ko:"병원 고르기는 진짜 공부가 필요하죠{E}"},{zh:"GOLD J小編來認真回一下{E}",ko:"골드제이 소편이 진지하게 답해 볼게요{E}"},{zh:"這個問題問得好，先收藏起來{E}",ko:"좋은 질문이라 먼저 저장해 두세요{E}"}],
-  T2:[{zh:"韓台價差真的很有感{E}",ko:"한국-대만 가격 차이 진짜 체감되죠{E}"},{zh:"價格真的是大家最在意的{E}",ko:"가격이 제일 신경 쓰이는 부분이죠{E}"},{zh:"直接把價格攤開給大家參考{E}",ko:"가격 그대로 펼쳐서 보여드릴게요{E}"}],
-  T3:[{zh:"每個人在意的點不一樣，給妳一個方向{E}",ko:"신경 쓰이는 부분이 다 달라서 방향만 잡아 드릴게요{E}"},{zh:"這題我們院長很常被問到{E}",ko:"이건 원장님이 자주 받는 질문이에요{E}"},{zh:"幫妳簡單整理一下{E}",ko:"간단하게 정리해 드릴게요{E}"}],
-  T4:[{zh:"這組合真的很懂{E}",ko:"이 조합 진짜 잘 아시네요{E}"},{zh:"同意！自然感最重要{E}",ko:"동의해요! 자연스러움이 제일 중요하죠{E}"},{zh:"看完很有共鳴{E}",ko:"보고 완전 공감했어요{E}"}],
-  T5:[{zh:"這題很多人好奇，幫妳拆開來說{E}",ko:"궁금해하는 분 많아서 나눠서 설명해 드릴게요{E}"},{zh:"好問題，簡單說重點{E}",ko:"좋은 질문이에요, 핵심만 말씀드릴게요{E}"},{zh:"這個常被誤會，來說清楚{E}",ko:"오해가 많은 부분이라 정확히 말씀드릴게요{E}"}],
-  T6:[{zh:"第一次來韓國會擔心很正常{E}",ko:"처음 한국 오면 걱정되는 게 당연해요{E}"},{zh:"這個擔心我們很常聽到{E}",ko:"이 걱정 정말 자주 들어요{E}"},{zh:"別怕，先跟妳說我們怎麼做{E}",ko:"걱정 마세요, 저희가 어떻게 하는지 먼저 말씀드릴게요{E}"}],
-  T9:[{zh:"要先看是哪一種狀況喔{E}",ko:"먼저 어떤 상황인지 봐야 해요{E}"},{zh:"不是每個人都適合，幫妳分一下{E}",ko:"모두에게 맞는 건 아니라 나눠 볼게요{E}"},{zh:"這題要分情況說{E}",ko:"이건 경우를 나눠서 봐야 해요{E}"}],
-  T10:[{zh:"好膚質真的不是靠單一秘訣{E}",ko:"좋은 피부는 비결 하나로 되는 게 아니에요{E}"},{zh:"這題我們最愛回答了{E}",ko:"이 질문 저희가 제일 좋아해요{E}"},{zh:"偷偷分享我們常跟客人說的{E}",ko:"저희가 고객분들께 자주 하는 얘기 살짝 공유해요{E}"}],
-  T11:[{zh:"先老實說一下{E}",ko:"먼저 솔직하게 말씀드릴게요{E}"},{zh:"GOLD J小編來回覆{E}",ko:"골드제이 소편이 답해 드려요{E}"}],
-  T12:[{zh:"先老實跟妳說{E}",ko:"먼저 솔직하게 말씀드릴게요{E}"},{zh:"這題要誠實回答{E}",ko:"이건 솔직하게 답해야겠어요{E}"}],
+  T1:[{zh:"如果不想去流水線式的診所，可以參考看看 {C} 喔～{E}",ko:"공장형 병원이 싫다면 {CK}을 참고해 보세요~{E}"},{zh:"可以參考 {C} 哦～{E}",ko:"{CK} 참고해 보세요~{E}"},{zh:"選診所真的要做點功課{E}",ko:"병원 고르기는 진짜 공부가 필요하죠{E}"},{zh:"如果有計畫到韓國做醫美，也可以看看位於江南的 {C}～{E}",ko:"한국에서 시술 계획이 있다면 강남의 {CK}도 봐 주세요~{E}"}],
+  T2:[{zh:"價格真的是大家最在意的{E}",ko:"가격이 제일 신경 쓰이죠{E}"},{zh:"韓台價差真的很有感～{E}",ko:"한국-대만 가격 차이 체감되죠~{E}"},{zh:"想了解價格的話，這邊先跟妳說明一下～{E}",ko:"가격이 궁금하시면 먼저 설명드릴게요~{E}"}],
+  T3:[{zh:"其實要先看自己的肌膚狀況和想改善的問題哦～{E}",ko:"먼저 내 피부 상태와 개선하고 싶은 게 뭔지 봐야 해요~{E}"},{zh:"幫妳簡單整理一下～{E}",ko:"간단히 정리해 드릴게요~{E}"},{zh:"這題院長很常被問到喔～{E}",ko:"원장님이 자주 받는 질문이에요~{E}"}],
+  T4:[{zh:"這個搭配確實是很多人會考慮的方式喔！{E}",ko:"이 조합은 정말 많이들 고려하는 방식이에요!{E}"},{zh:"同意！自然感真的最重要～{E}",ko:"동의해요! 자연스러움이 제일 중요하죠~{E}"},{zh:"謝謝妳的真實分享～{E}",ko:"솔직한 후기 감사해요~{E}"}],
+  T5:[{zh:"好問題！幫妳整理一下～{E}",ko:"좋은 질문이에요! 정리해 드릴게요~{E}"},{zh:"這個很多人都會好奇喔～{E}",ko:"이거 궁금해하는 분 많아요~{E}"},{zh:"這個常被誤會，來說清楚一點～{E}",ko:"오해가 많은 부분이라 정확히 말씀드릴게요~{E}"}],
+  T6:[{zh:"不用太緊張～{E}",ko:"너무 긴장하지 않아도 돼요~{E}"},{zh:"第一次來韓國做醫美會擔心很正常{E}",ko:"처음 한국에서 시술받으면 걱정되는 게 당연해요{E}"},{zh:"其實沒有想像中那麼可怕喔～{E}",ko:"생각만큼 무섭지 않아요~{E}"}],
+  T9:[{zh:"要先看是哪一種狀況喔～{E}",ko:"먼저 어떤 상황인지 봐야 해요~{E}"},{zh:"這個要先評估原因哦～{E}",ko:"먼저 원인을 평가해야 해요~{E}"},{zh:"其實很適合呀～～{E}",ko:"사실 잘 맞아요~~{E}"}],
+  T10:[{zh:"好膚質真的不是靠單一秘訣{E}",ko:"좋은 피부는 비결 하나로 되지 않아요{E}"},{zh:"這題我們最愛回答了～{E}",ko:"이 질문 저희가 제일 좋아해요~{E}"},{zh:"這種情況要先看膚質哦～{E}",ko:"이런 경우 먼저 피부 타입을 봐야 해요~{E}"}],
+  T11:[{zh:"先老實說一下～{E}",ko:"먼저 솔직하게 말씀드릴게요~{E}"},{zh:"{C} 小編來回覆～{E}",ko:"{CK} 소편이 답해 드려요~{E}"}],
+  T12:[{zh:"先老實跟妳說{E}",ko:"먼저 솔직하게 말씀드릴게요{E}"},{zh:"這題要誠實回答～{E}",ko:"이건 솔직하게 답할게요~{E}"}],
+  T13:[{zh:"懂！！{E}",ko:"완전 알죠!!{E}"},{zh:"好期待欸～{E}",ko:"너무 기대되겠어요~{E}"},{zh:"哈哈哈真的！{E}",ko:"하하하 진짜요!{E}"},{zh:"來首爾真的很棒耶～{E}",ko:"서울 오시는 거 너무 좋죠~{E}"}],
+  T14:[{zh:"懂！！嘴唇真的很影響整個人的精緻感耶～{E}",ko:"완전 알죠!! 입술이 전체 분위기를 정말 좌우해요~{E}"},{zh:"這裡這裡！🙋‍♀️ 可以看看我們 {C}～",ko:"여기요 여기!🙋‍♀️ 저희 {CK} 봐 주세요~"},{zh:"如果喜歡自然、不想要太誇張的改變，可以參考一下江南的 {C} 唷！{E}",ko:"자연스럽고 과하지 않은 변화를 원하면 강남의 {CK}을 참고해 보세요!{E}"},{zh:"其實填充真的很看醫師的設計耶！{E}",ko:"필러는 정말 의사의 디자인이 중요해요!{E}"}],
   T7:[{zh:"",ko:""}],T8:[{zh:"",ko:""}]
 };
 const CTA=[
-  {zh:"有排{CITY}的話，記得把我們加進清單{END}",ko:"{CITY} 일정 있으면 리스트에 넣어 두세요{END}"},
-  {zh:"想先問問看也可以直接私訊我們{END}",ko:"먼저 물어보고 싶으면 디엠 주세요{END}"},
-  {zh:"主頁有更多案例，可以先逛逛{END}",ko:"프로필에 사례 더 있으니 먼저 둘러보세요{END}"},
-  {zh:"有任何問題留言或私訊都可以{END}",ko:"궁금한 건 댓글이나 디엠 다 괜찮아요{END}"},
-  {zh:"來{CITY}的時候，歡迎來GOLD J聊聊{END}",ko:"{CITY} 오시면 골드제이에서 상담받아 보세요{END}"}
+  {zh:"歡迎私訊索取官方 LINE 預約資訊～{END}",ko:"공식 LINE 예약 정보는 디엠으로 요청해 주세요~{END}"},
+  {zh:"價格、療程和預約時間都可以先透過官方 LINE 用中文詢問唷～{END}",ko:"가격·시술·예약 시간 모두 공식 LINE에서 중국어로 먼저 물어볼 수 있어요~{END}"},
+  {zh:"歡迎私訊我們了解更多～{END}",ko:"자세한 건 디엠 주세요~{END}"},
+  {zh:"想了解近期方案或安排預約，歡迎提前聯繫我們唷～{END}",ko:"최근 혜택이나 예약이 궁금하면 미리 연락 주세요~{END}"},
+  {zh:"主頁有更多案例，可以先逛逛{END}",ko:"프로필에 사례가 더 있으니 둘러보세요{END}"},
+  {zh:"如果剛好有來首爾，也歡迎來 {C} 讓院長一對一面診～{END}",ko:"서울 오시면 {CK}에서 원장님 1:1 상담 받아 보세요~{END}"},
+  {zh:"希望每位顧客都能安心變美，找到真正適合自己的療程～{END}",ko:"모든 분이 안심하고 예뻐지고, 나에게 맞는 시술을 찾으시길 바라요~{END}"}
 ];
 function diffPool(){
   const a=[
-    V([{zh:"依膚況客製規劃",ko:"피부 상태 맞춤 설계"},{zh:"看過膚況才給建議",ko:"피부를 보고 나서 권해 드림"}]),
-    V([{zh:"不需要的不會推",ko:"불필요한 시술은 권하지 않음"},{zh:"面診不強迫加購",ko:"상담 때 추가 결제 강요 없음"}]),
-    V([{zh:"價格事先講清楚",ko:"가격 미리 안내"},{zh:"報價透明不加價",ko:"투명한 견적, 추가금 없음"}])
+    V([{zh:"採 100% 預約制，不走大量接客模式",ko:"100% 예약제, 대량 진료 방식이 아님"},{zh:"不是流水線式的診所",ko:"공장형 병원이 아님"}]),
+    V([{zh:"會依照每個人的肌膚狀況與需求，給予適合的療程建議",ko:"피부 상태와 필요에 맞춰 시술을 제안"},{zh:"不會一味推銷",ko:"무리하게 권하지 않음"}]),
+    V([{zh:"不會為了追求效果而盲目提高能量",ko:"효과만 좇아 무리하게 에너지를 올리지 않음"},{zh:"從術前諮詢到療程規劃都會仔細確認",ko:"상담부터 시술 계획까지 꼼꼼히 확인"},{zh:"會充分溝通，清楚說明療程效果、副作用及注意事項",ko:"시술 효과·부작용·주의사항을 충분히 설명"}])
   ];
-  if(S.doc)a.unshift(V([{zh:"院長親自面診、親自施打",ko:"원장님이 직접 상담·시술"},{zh:"從面診到施打都是院長本人",ko:"상담부터 시술까지 원장님 본인"}]));
-  if(S.zh)a.push(V([{zh:"全程中文溝通",ko:"전 과정 중국어 소통"},{zh:"有中文協助，溝通不卡",ko:"중국어 지원으로 소통 걱정 없음"}]));
+  if(S.doc)a.unshift(V([{zh:"由院長一對一親自面診、評估膚況，並親自施作",ko:"원장님이 1:1로 직접 상담·평가하고 직접 시술"},{zh:"採取一對一面診制度，由院長親自評估並親自施作",ko:"1:1 상담제, 원장님이 직접 평가·시술"},{zh:"院長親自面診、親自施作，不是諮詢完就換別人操作的那種",ko:"원장님이 직접 상담·시술, 상담 후 다른 사람이 시술하지 않음"}]));
+  if(S.zh)a.push(V([{zh:"有中文翻譯人員全程協助，從諮詢到施作都能安心溝通",ko:"중국어 통역 직원이 전 과정 지원"},{zh:"從術前諮詢、院長面診到療程過程，都有中文工作人員協助溝通",ko:"상담·원장 진료·시술까지 중국어 직원이 소통 지원"}]));
   return a;
 }
 function fill(s){return s.replace(/\{E\}/g,E.face||"").replace(/\{END\}/g,E.end||"").replace(/\{CITY\}/g,S.city||"首爾").replace(/\{N\}～/g,"").replace(/\{C\}/g,S.clinic||"[診所名]").replace(/\{CK\}/g,S.clinicKo||"[병원명]");}
@@ -455,89 +492,146 @@ function procsFor(a,limit){
   return ids.slice(0,limit).map(id=>ALL().find(p=>p.id===id));
 }
 
+/* 여행·일상 팁 (실제 답글 스타일 기반, 일반 정보만) */
+const TIPS={
+  spring:{kw:["3月","4月","春天","櫻花"],l:[{zh:"4月初通常是櫻花季，汝矣島、石村湖人超多，建議早上早點去喔～",ko:"4월 초가 보통 벚꽃 시즌이라 여의도·석촌호수는 사람이 많아요, 아침 일찍 가세요~"}]},
+  may:{kw:["5月","6月"],l:[{zh:"5、6月天氣超舒服，很適合去首爾林、漢江公園散步野餐～",ko:"5~6월은 날씨가 좋아서 서울숲·한강공원 산책하기 좋아요~"}]},
+  summer:{kw:["7月","8月","夏天","梅雨"],l:[{zh:"7月是梅雨季，又熱又悶，記得帶把小傘、穿透氣一點的衣服！",ko:"7월은 장마철이라 덥고 습해요, 작은 우산과 통기성 좋은 옷 챙기세요!"}]},
+  fall:{kw:["9月","10月","秋天","楓葉","賞楓"],l:[{zh:"首爾楓葉通常10月底到11月初最漂亮，景福宮、南山都很推薦～如果帶長輩，奧林匹克公園＋石村湖比較輕鬆好走喔！",ko:"서울 단풍은 보통 10월 말~11월 초가 절정이라 경복궁·남산 추천해요~ 어르신과 함께면 올림픽공원+석촌호수가 걷기 편해요!"}]},
+  winter:{kw:["11月","12月","1月","2月","冬天","冷","下雪","初雪","保暖"],l:[{zh:"首爾冬天早晚溫差大，還會到零下！發熱衣、厚毛衣再搭羽絨外套最安全，圍巾手套也很重要～洋蔥式穿搭最不會出錯🧣",ko:"서울 겨울은 일교차가 크고 영하로 내려가요! 발열내의·두꺼운 니트에 패딩이 제일 안전하고 목도리·장갑도 중요해요~ 겹쳐 입기가 정답🧣"},{zh:"韓國秋冬真的不能小看🤣 寧願多帶一件，也不要在韓國冷到發抖～",ko:"한국 가을·겨울 진짜 무시하면 안 돼요🤣 한 벌 더 챙기는 게 떨지 않는 길~"},{zh:"室外很冷，但進到百貨公司、餐廳和地鐵又很暖，所以裡面不要穿太厚，洋蔥式穿搭方便穿脫最重要！暖暖包也很推薦～",ko:"밖은 춥지만 백화점·식당·지하철 안은 따뜻해서 안에는 너무 두껍게 입지 마세요. 입고 벗기 편한 겹쳐 입기가 최고! 핫팩도 추천~"}]},
+  pack:{kw:["穿搭","穿什麼","天氣","溫差","外套"],l:[{zh:"出發前幾天記得再看一下天氣預報，首爾早晚溫差滿大的，洋蔥式穿搭最安全～",ko:"출발 며칠 전에 날씨 다시 확인하세요, 서울은 일교차가 커서 겹쳐 입기가 제일 안전해요~"}]},
+  food:{kw:["美食","好吃","餐廳","吃","宵夜","甜點"],l:[{zh:"秋冬一定要吃鯛魚燒！熱熱的外皮酥酥脆脆超好吃🤤",ko:"가을·겨울엔 붕어빵 꼭 드세요! 따끈하고 바삭해서 최고예요🤤"},{zh:"也很推薦找韓國在地人常去的老店，像烤魚、白切肉、豬腳、海鮮鍋都很值得吃！",ko:"현지인이 가는 노포도 추천해요, 생선구이·수육·족발·해물탕 다 맛있어요!"},{zh:"廣藏市場的綠豆煎餅也很推薦，邊逛邊吃超開心～",ko:"광장시장 빈대떡도 추천해요, 구경하면서 먹으면 최고예요~"}]},
+  spot:{kw:["景點","行程","第一次來","自由行","去哪","逛街","咖啡廳"],l:[{zh:"除了景福宮、明洞，也很推薦聖水洞、益善洞、南山首爾塔和漢江公園！聖水洞有很多特色咖啡廳和選物店，很適合安排半天慢慢逛～",ko:"경복궁·명동 말고도 성수동·익선동·남산타워·한강공원 추천해요! 성수동은 카페·편집숍이 많아 반나절 코스로 좋아요~"}]},
+  move:{kw:["交通","地鐵","機場","地圖","計程車"],l:[{zh:"交通卡記得買 T-money，地圖用 Naver Map 或 KakaoMap 比較準，Google 地圖在韓國導航功能有限喔！",ko:"교통카드는 티머니, 지도는 네이버지도·카카오맵이 정확해요. 구글맵은 한국에서 길찾기가 제한적이에요!"}]},
+  stay:{kw:["住宿","住哪","飯店","民宿"],l:[{zh:"住宿可以優先找弘大、明洞、乙支路、東大門！第一次來選明洞最方便，喜歡熱鬧選弘大，想體驗首爾日常又有特色就選乙支路～",ko:"숙소는 홍대·명동·을지로·동대문 추천해요! 처음이면 명동, 북적이는 게 좋으면 홍대, 일상적인 서울을 원하면 을지로~"}]},
+  cash:{kw:["現金","刷卡","換錢","預算"],l:[{zh:"大部分地方都能刷卡，但市場、小吃攤不一定能刷，還是多帶一點現金比較安心～",ko:"대부분 카드가 되지만 시장·노점은 안 되는 곳도 있어서 현금을 조금 챙기면 안심이에요~"}]},
+  solo:{kw:["一個人","獨旅","自己去"],l:[{zh:"韓國其實蠻適合獨旅的！聖水洞、延南洞、益善洞都很適合自己慢慢逛，湯飯、刀削麵這類一個人吃也很方便～晚上不要跑太偏僻的地方就好！",ko:"한국은 혼자 여행하기 좋아요! 성수·연남·익선동은 혼자 걷기 좋고, 국밥·칼국수는 혼밥하기 편해요~ 밤에 외진 곳만 피하세요!"}]},
+  palace:{kw:["景福宮","北村","昌德宮","韓屋"],l:[{zh:"景福宮、北村、昌德宮可以排同一天，搭地鐵到安國站或景福宮站再慢慢走就好，不用一直換車～",ko:"경복궁·북촌·창덕궁은 같은 날 묶으세요. 안국역이나 경복궁역에서 걸어 다니면 돼요~"}]},
+  shop:{kw:["保養品","護膚品","olive young","買","退稅","伴手禮"],l:[{zh:"保養品可以去比較大間的 Olive Young，貨比較齊，很多店出示護照還能即時退稅～",ko:"화장품은 큰 올리브영이 재고가 많고, 여권 있으면 즉시 택스리펀 되는 곳이 많아요~"}]}
+};
+function travelTips(text){
+  const t=text.toLowerCase();
+  const hit=Object.keys(TIPS).filter(k=>TIPS[k].kw.some(w=>t.includes(w.toLowerCase())));
+  const season=hit.some(k=>["spring","may","summer","fall","winter"].includes(k));
+  const out=[];for(const k of hit){if(k==="pack"&&season)continue;out.push(V(TIPS[k].l));}
+  if(!out.length)out.push(V(TIPS.spot.l));
+  return out.slice(0,2);
+}
+
 function build(a,type){
   newStyle();
   const L=[];const add=(zh,ko)=>L.push({zh:fill(zh),ko:fill(ko)});const addV=arr=>{const v=V(arr);add(v.zh,v.ko);};
   const B=E.bul;
   const o=pick(OPEN[type],rnd); if(o.zh)add(o.zh,o.ko);
   const C=S.clinic||"[診所名]",CK=S.clinicKo||"[병원명]";
+  if(type==="T13"){
+    const tips=travelTips(state.text||"");
+    for(const tp of (a.chat?tips.slice(0,1):tips))add(tp.zh,tp.ko);
+    if(S.promo!==false&&!a.chat){
+      if(/[0-9一二三四五]\s*天/.test(state.text||"")&&rnd()<.6)add("如果停留時間不長，建議第一天或第二天安排面診和療程，後面還有時間觀察恢復狀況，不用把行程排得太趕～","일정이 짧으면 첫날이나 둘째 날에 상담·시술을 잡아야 회복 상태를 볼 시간이 있어요~");
+    addV([{zh:"都來韓國了，也可以順便安排一下醫美行程呀～🤣💕 先讓院長幫妳看看適合做什麼，不用急著決定啦！",ko:"한국 온 김에 시술 일정도 넣어 보세요~🤣💕 원장님께 먼저 봐 달라고 하고, 급하게 정할 필요 없어요!"},{zh:"難得來韓國玩，也可以趁這個機會體驗看看韓國醫美，說不定會成為這趟旅行很特別的回憶呢～💕",ko:"모처럼 한국 온 김에 한국 시술을 체험해 보는 것도 좋아요, 특별한 여행 추억이 될지도요~💕"},{zh:`偷偷推薦一下 ${C}，位於首爾江南，採 100% 預約制，由院長親自面診及施作${S.zh?"，還有中文翻譯服務":""}～`,ko:`살짝 추천하면 ${CK}은 서울 강남에 있고, 100% 예약제로 원장님이 직접 상담·시술해요${S.zh?", 중국어 통역도 있어요":""}~`}]);
+      if(S.loc&&rnd()<.5)add(`${C} 就在${S.loc}，交通也很方便唷！`,`${CK}은 ${S.locKo||S.loc}에 있어 교통도 편해요!`);
+      if(rnd()<.5)add("療程記得不要排在回國前一天，行程也比較輕鬆唷！","시술은 귀국 전날은 피하는 게 일정도 편해요!");
+    }
+    addV([{zh:"祝妳玩得開心～{END}",ko:"즐거운 여행 되세요~{END}"},{zh:"一定會是很棒的旅行{END}",ko:"분명 멋진 여행이 될 거예요{END}"},{zh:"旅途愉快{END}",ko:"좋은 여행 되세요{END}"}]);
+    return {lines:L,travel:true};
+  }
+  if(type==="T14"){
+    const t=state.text||"";
+    if(a.concerns.includes("lip")||/唇/.test(t)){
+      addV([{zh:"私心推薦我們代表院長的 TOUCH UP KISS 💋 院長很擅長唇部玻尿酸，會依照每個人的原生唇形和五官比例設計，不是單純把嘴唇打得很厚，而是更重視唇形線條和整體比例。",ko:"대표원장님의 TOUCH UP KISS를 추천해요💋 원장님이 입술 필러를 잘하셔서 원래 입술 모양과 이목구비 비율에 맞춰 디자인해요. 그냥 두껍게가 아니라 입술선과 전체 비율을 중시해요."},{zh:"我們有院長專屬設計的 GOLD J Touch-up Kiss 💋 不只是增加嘴唇厚度，也很重視唇部比例、中央飽滿度及唇線細節，打造自然精緻的唇形。",ko:"원장님 전용 디자인 GOLD J Touch-up Kiss가 있어요💋 두께만 늘리는 게 아니라 비율·중앙 볼륨·입술선까지 챙겨 자연스럽고 정교한 입술을 만들어요."}]);
+      if(/嘟|一點點|微笑唇|嘴角/.test(t))add("如果只想要一點點嘟嘟的感覺，其實更考驗醫師的唇形設計耶！也可以針對唇線不順、上下唇比例、嘴角做細緻設計～","살짝 도톰한 느낌만 원할수록 의사의 디자인이 더 중요해요! 입술선·위아래 비율·입꼬리까지 섬세하게 디자인할 수 있어요~");
+      if(/維持|多久|代謝/.test(t))add("唇部玻尿酸會隨著時間慢慢被人體代謝，飽滿度也會逐漸下降的～","입술 필러는 시간이 지나면서 서서히 흡수돼서 볼륨도 점점 줄어요~");
+      if(/痛|瘀青|腫/.test(t))add("疼痛感每個人不同，施打時通常會有一些脹感或刺痛感；如果很怕瘀青、腫，更要慎選醫師喔！","통증은 사람마다 다르고 보통 뻐근하거나 따끔한 느낌이 있어요. 멍·붓기가 걱정되면 의사를 더 신중히 고르세요!");
+    }else if(/鼻/.test(t)){
+      add("私心推薦我們代表院長，審美真的很在線！不是單純把鼻子打高，而是會依照每個人的五官比例和整體臉型去設計，讓鼻子看起來自然又有立體感～","대표원장님 미적 감각이 정말 좋아요! 코를 높이기만 하는 게 아니라 이목구비 비율과 얼굴형에 맞춰 자연스럽고 입체감 있게 디자인해요~");
+    }else if(/下巴/.test(t)){
+      add("下巴會以符合原本臉型比例、自然協調為主要考量，不會刻意追求過尖或過長的下巴唷！","턱은 원래 얼굴형 비율과 자연스러운 조화를 우선해서, 과하게 뾰족하거나 길게 만들지 않아요!");
+    }else if(/眼下|淚溝/.test(t)){
+      add("如果有眼下凹陷的困擾，可以考慮玻尿酸填充，幫助改善凹陷，讓眼周看起來更加飽滿自然～不過還是要先讓院長看過眼周狀況再決定喔！","눈밑 꺼짐이 고민이면 필러로 꺼짐을 개선해 눈가를 자연스럽게 채울 수 있어요~ 다만 원장님이 눈가 상태를 먼저 보고 정해요!");
+    }else{
+      add("我們很重視臉部整體比例，不是單純把某個部位打得飽滿，而是會由院長親自面診，依照個人的臉型、五官比例及需求，評估適合的填充方式～","저희는 얼굴 전체 비율을 중시해서, 한 부위만 채우는 게 아니라 원장님이 직접 얼굴형·비율·필요에 맞춰 필러 방식을 정해요~");
+    }
+  }
   if(type==="T1"){
-    addV([{zh:"挑診所可以先看這三件事：",ko:"병원 고를 때 이 세 가지부터 보세요:"},{zh:"我們自己會建議先確認：",ko:"저희라면 이것부터 확인하라고 할게요:"},{zh:"比起價格，更建議先看：",ko:"가격보다 먼저 이걸 보세요:"}]);
-    const items=[{zh:"誰面診、誰施打（是不是同一位醫師）",ko:"누가 상담하고 누가 시술하는지 (같은 의사인지)"},{zh:"有沒有先看膚況才建議療程",ko:"피부를 먼저 보고 시술을 권하는지"},{zh:"價格是不是一開始就說清楚",ko:"처음부터 가격을 명확히 알려주는지"},{zh:"術後有沒有人可以用中文問",ko:"시술 후 중국어로 물어볼 사람이 있는지"}];
-    const pickd=items.sort(()=>rnd()-.5).slice(0,3);for(const it of pickd)add(`${E.ok} ${it.zh}`,`${E.ok} ${it.ko}`);
+    if(rnd()<.4){
+      addV([{zh:"挑診所可以先看這三件事：",ko:"병원 고를 때 이 세 가지부터 보세요:"},{zh:"比起價格，更建議先看：",ko:"가격보다 먼저 이걸 보세요:"}]);
+      const items=[{zh:"是不是院長本人面診＋親自施作",ko:"원장 본인이 상담·시술하는지"},{zh:"有沒有先看膚況才建議療程",ko:"피부를 먼저 보고 시술을 권하는지"},{zh:"價格是不是一開始就說清楚",ko:"처음부터 가격을 명확히 알려주는지"},{zh:"有沒有中文翻譯可以全程溝通",ko:"전 과정 중국어 통역이 있는지"}];
+      for(const it of items.sort(()=>rnd()-.5).slice(0,3))add(`${E.ok} ${it.zh}`,`${E.ok} ${it.ko}`);
+    }
   }
   if(type==="T3"&&!a.concerns.length){
-    const fmt=V([n=>`【${n}】`,n=>`${B} ${n}｜`,n=>`${n} ▶ `]);
+    const fmt=V([n=>`【${n}】`,n=>`${B}${n}｜`,n=>`${n} ▶ `]);
     const age=(n,ids,zh,ko)=>{const ps=ids.map(id=>ALL().find(p=>p.id===id)).filter(Boolean);add(`${fmt(n)}${zh}：${ps.map(p=>P(p).zh).join("、")}`,`${fmt(n)}${ko}: ${ps.map(p=>p.ko).join(", ")}`);};
     age("20+",["juvelook","rejuran"],V(["先把膚質顧好","以保養膚質為主"]),"피부결 관리 위주");
-    age("30+",["ulthera","sofwave"],V(["開始顧輪廓","預防初期鬆弛"]),"윤곽·초기 처짐 관리");
+    age("30+",["ulthera","thermage"],V(["開始顧輪廓","預防初期鬆弛"]),"윤곽·초기 처짐 관리");
     age("40+",["ulthera","radiesse","re2o"],V(["拉提＋彈力一起規劃","整體抗老規劃"]),"리프팅+탄력 함께 설계");
-    addV([{zh:`${E.tip} 第一次建議先挑最在意的1～2項就好`,ko:`${E.tip} 처음엔 제일 신경 쓰이는 1~2가지만 고르세요`},{zh:`${E.tip} 不用一次全做，先從最困擾的開始`,ko:`${E.tip} 한 번에 다 할 필요 없이 제일 고민되는 것부터`}]);
+    addV([{zh:`${E.tip} 第一次建議先挑最在意的1～2項就好～`,ko:`${E.tip} 처음엔 제일 신경 쓰이는 1~2가지만 고르세요~`},{zh:`${E.tip} 不需要盲目跟風，先從最困擾的開始～`,ko:`${E.tip} 유행 따라가지 말고 제일 고민되는 것부터~`}]);
   }
   else if(type==="T3"){
-    let cs=a.concerns.slice(0,3);
     addV([{zh:"依妳說的狀況，可以參考：",ko:"말씀하신 상황이면 이렇게 참고해 보세요:"},{zh:"給妳幾個方向：",ko:"몇 가지 방향 드릴게요:"}]);
-    for(const c of cs){const ps=ALL().filter(p=>p.c[0]===c).slice(0,2);if(!ps.length)continue;
-      add(`${B} ${CONCERNS[c].zh}：${ps.map(p=>P(p).zh).join("、")}`,`${B} ${CONCERNS[c].ko}: ${ps.map(p=>p.ko).join(", ")}`);}
-    addV([{zh:"實際還是要看臉型跟膚況，面診後再決定比較準～",ko:"실제로는 얼굴형·피부 상태를 보고 정하는 게 정확해요~"},{zh:"每個人狀況不同，院長會看過再幫妳排～",ko:"사람마다 달라서 원장님이 보고 나서 짜 드려요~"}]);
+    for(const c of a.concerns.slice(0,3)){const ps=ALL().filter(p=>p.c[0]===c).slice(0,2);if(c==="face"){add(`${B}${CONCERNS.face.zh}：可能是咀嚼肌比較發達，也有可能是唾液腺肥大造成的；咀嚼肌肉毒也要透過面診確認適合的施打方式及劑量`,`${B}${CONCERNS.face.ko}: 저작근 발달 또는 침샘 비대일 수 있고, 사각턱 보톡스도 상담으로 방식·용량을 정해요`);continue;}if(c==="lip"||c==="filler")continue;if(!ps.length)continue;
+      add(`${B}${CONCERNS[c].zh}：${ps.map(p=>P(p).zh).join("、")}`,`${B}${CONCERNS[c].ko}: ${ps.map(p=>p.ko).join(", ")}`);}
+    addV([{zh:"不過每個人的臉型、皮膚厚度和脂肪分布都不同，還是要先由院長評估再決定喔～",ko:"다만 얼굴형·피부 두께·지방 분포가 다 달라서 원장님 평가 후 정하는 게 좋아요~"},{zh:"建議先由院長一對一面診，再評估適合的療程，不需要盲目跟風選擇喔～",ko:"원장님 1:1 상담 후 맞는 시술을 정하는 걸 추천해요, 유행 따라 고를 필요 없어요~"}]);
   }
   if(type==="T4"){
     const ps=procsFor(a,2);
-    if(ps.length>=2){addV([{zh:`${P(ps[0]).zh}＋${P(ps[1]).zh}這個搭配很聰明！`,ko:`${ps[0].ko}+${ps[1].ko} 조합 똑똑하네요!`},{zh:`${P(ps[0]).zh}配${P(ps[1]).zh}，我們也很常建議`,ko:`${ps[0].ko}에 ${ps[1].ko}, 저희도 자주 권해요`}]);
-      add(`${P(ps[0]).zh}負責${ps[0].effZh}，${P(ps[1]).zh}顧${ps[1].effZh}，剛好分工～`,`${ps[0].ko}는 ${ps[0].effKo}, ${ps[1].ko}는 ${ps[1].effKo} 담당이라 역할이 딱 나뉘어요~`);}
-    else if(ps.length===1){add(`${P(ps[0]).zh}主要是${ps[0].effZh}，回訪的人很多${E.end}`,`${ps[0].ko}는 ${ps[0].effKo} 쪽이라 재방문이 많아요${E.end}`);}
-    else addV([{zh:"不過膚況不同，做完的感受也會不太一樣喔",ko:"다만 피부 상태마다 느낌은 조금씩 달라요"},{zh:"適合自己的組合最重要～",ko:"나한테 맞는 조합이 제일 중요해요~"}]);
+    if(ps.length>=2){add(`${P(ps[0]).zh}主要是${ps[0].effZh}，${P(ps[1]).zh}則著重於${ps[1].effZh}～`,`${ps[0].ko}는 ${ps[0].effKo}, ${ps[1].ko}는 ${ps[1].effKo} 위주예요~`);
+      add("不過還是要看個人的皮膚厚度、脂肪分布及鬆弛程度來評估，不一定每個人都需要一起做。","다만 피부 두께·지방 분포·처짐 정도를 보고 평가해야 해서, 모두가 같이 할 필요는 없어요.");}
+    else if(ps.length===1){add(`${P(ps[0]).zh}主要針對${ps[0].effZh}，回訪的人很多喔{END}`,`${ps[0].ko}는 ${ps[0].effKo} 쪽이라 재방문이 많아요{END}`);}
+    else addV([{zh:"不過膚況不同，做完的感受也會不太一樣喔～",ko:"다만 피부 상태마다 느낌이 조금씩 달라요~"},{zh:"找到適合自己的搭配最重要～",ko:"나에게 맞는 조합이 제일 중요해요~"}]);
   }
   if(type==="T5"){
     add("[重點答案 1～2 句：次數／間隔／發數怎麼決定]","[핵심 답 1~2문장: 횟수·간격·샷 수 기준]");
-    addV([{zh:"發數不是越多越好，打對位置、對層次才是重點～",ko:"샷 수가 많을수록 좋은 게 아니라 맞는 위치·층이 핵심이에요~"},{zh:"實際會依膚況調整能量跟深度，不會一套用到底～",ko:"실제로는 피부에 맞춰 에너지·깊이를 조절해요, 똑같이 하지 않아요~"}]);
+    addV([{zh:"院長會根據臉部脂肪分布及肌膚鬆弛程度，評估適合的發數與能量，不會為了追求效果而盲目提高能量喔～",ko:"원장님이 지방 분포·처짐 정도를 보고 샷 수와 에너지를 정해요, 효과만 좇아 무리하게 올리지 않아요~"},{zh:"發數不是越多越好，打對位置、對層次才是重點～",ko:"샷 수가 많을수록 좋은 게 아니라 맞는 위치·층이 핵심이에요~"}]);
   }
   if(type==="T6"){
-    if(S.zh)addV([{zh:`${C}有中文協助，術前術後注意事項都會講清楚`,ko:`${CK}은 중국어 지원이 돼서 시술 전후 주의사항을 다 설명해 드려요`},{zh:"從諮詢到術後都可以用中文問，不用擔心溝通",ko:"상담부터 시술 후까지 중국어로 물어볼 수 있어요"}]);
-    addV([{zh:"怕痛的話先說，會幫妳調整麻醉跟施打方式～",ko:"통증이 걱정되면 미리 말해 주세요, 마취·방식 조절해 드려요~"},{zh:"痛感也可以先跟院長討論，不用硬撐～",ko:"통증도 원장님과 먼저 상의할 수 있어요, 참지 않아도 돼요~"}]);
+    addV([{zh:"療程前會先敷麻藥，也有止痛針及麻醉方式可以選擇，可以事先與院長討論喔！",ko:"시술 전 마취 크림을 바르고, 진통 주사나 마취 방식도 고를 수 있어요. 원장님과 미리 상의하세요!"},{zh:"怕痛的話可以先跟我們說，會幫妳調整麻醉和施打方式～",ko:"통증이 걱정되면 미리 말해 주세요, 마취와 시술 방식을 조절해 드려요~"}]);
+    if(S.zh)addV([{zh:"診所有中文翻譯人員全程協助，第一次來韓國做醫美也不用擔心語言問題～",ko:"중국어 통역 직원이 전 과정 함께해서 처음이어도 언어 걱정 없어요~"},{zh:"從術前諮詢、院長面診到療程過程，都有中文工作人員協助溝通喔！",ko:"상담·원장 진료·시술까지 중국어 직원이 도와드려요!"}]);
   }
   if(type==="T9"){
     const ps=procsFor(a,3);
     if(ps.length>=2&&a.concerns.length){
-      for(const p of ps.slice(0,3))add(V([`${B} [原因/類型] → ${P(p).zh}（${p.effZh}）`,`${B} 如果是[原因/類型]，可以考慮${P(p).zh}`]),`${B} [원인/타입]이면 → ${p.ko} (${p.effKo})`);
+      for(const p of ps.slice(0,3))add(`${B}[原因/類型] → ${P(p).zh}（${p.effZh}）`,`${B}[원인/타입]이면 → ${p.ko} (${p.effKo})`);
     }else{
       add(`${E.ok} 比較適合：[什麼狀況的人做了比較有感]`,`${E.ok} 잘 맞는 경우: [어떤 경우 효과를 잘 느끼는지]`);
       add(`${E.ng} 效果有限：[什麼狀況改善有限]`,`${E.ng} 효과가 제한적인 경우: [어떤 경우인지]`);
     }
-    addV([{zh:`${E.tip} 效果跟維持時間因人而異，先讓院長評估最準`,ko:`${E.tip} 효과·유지 기간은 사람마다 달라서 원장님 평가가 제일 정확해요`},{zh:`${E.tip} 打之前一定要先確認自己是哪一型`,ko:`${E.tip} 시술 전에 내가 어떤 타입인지 꼭 확인하세요`}]);
+    addV([{zh:"建議先由院長評估，確認原因後再決定適合的療程～",ko:"원장님께 먼저 평가받고 원인을 확인한 뒤 시술을 정하세요~"},{zh:"畢竟每個人的狀況都不同，效果和維持時間也會因人而異喔～",ko:"사람마다 상황이 달라서 효과와 유지 기간도 개인차가 있어요~"}]);
   }
   if(type==="T10"){
-    const ps=["juvelook","rejuran","geneo"].map(id=>ALL().find(p=>p.id===id)).filter(Boolean);
-    addV([{zh:"我們會分成兩部分來看：",ko:"저희는 두 가지로 나눠서 봐요:"},{zh:"簡單說就是「日常＋定期」：",ko:"간단히 말하면 '일상+정기' 관리예요:"}]);
-    addV([{zh:`${B} 日常：防曬第一，溫和清潔＋保濕，別過度去角質`,ko:`${B} 일상: 자외선 차단 1순위, 순한 세안+보습, 과한 각질 제거 X`},{zh:`${B} 在家：防曬、保濕做好，清潔不要太用力`,ko:`${B} 집에서: 자외선 차단·보습 잘하고, 세안은 너무 세게 하지 않기`}]);
-    add(`${B} ${V(["定期","醫美"])}：${ps.map(p=>`${P(p).zh}（${p.effZh}）`).join("、")}`,`${B} 정기 관리: ${ps.map(p=>`${p.ko}(${p.effKo})`).join(", ")}`);
-    addV([{zh:`${E.tip} 好膚質是慢慢累積的，不是一次就定型`,ko:`${E.tip} 좋은 피부는 한 번에 되는 게 아니라 쌓이는 거예요`},{zh:`${E.tip} 重點是持續，不是一次做很多`,ko:`${E.tip} 한 번에 많이보다 꾸준함이 중요해요`}]);
+    const ps=["potenza","juvelook","rejuran","geneo"].map(id=>ALL().find(p=>p.id===id)).filter(Boolean).slice(0,3);
+    addV([{zh:"我們會分成兩部分來看：",ko:"저희는 두 가지로 나눠서 봐요:"},{zh:"簡單說就是「在家＋醫美」：",ko:"간단히 말하면 '집에서+시술'이에요:"}]);
+    addV([{zh:`${B}在家：防曬、保濕做好，清潔不要太用力`,ko:`${B}집에서: 자외선 차단·보습 잘하고, 세안은 너무 세게 하지 않기`},{zh:`${B}在家：加強保濕、修護屏障，避免過度清潔或使用刺激性產品`,ko:`${B}집에서: 보습·장벽 강화, 과한 세안이나 자극적인 제품 피하기`}]);
+    add(`${B}醫美：${ps.map(p=>`${P(p).zh}（${p.effZh}）`).join("、")}`,`${B}시술: ${ps.map(p=>`${p.ko}(${p.effKo})`).join(", ")}`);
+    addV([{zh:`${E.tip} 重點是持續～`,ko:`${E.tip} 핵심은 꾸준함이에요~`},{zh:`${E.tip} 像黃金微針通常建議每個月一次、連續做 3～5 次，循序漸進改善膚質～`,ko:`${E.tip} 포텐자는 보통 한 달에 한 번, 3~5회 연속으로 차근차근 개선해요~`},{zh:`${E.tip} 好膚質是慢慢累積的，不是一次就定型`,ko:`${E.tip} 좋은 피부는 한 번에 되는 게 아니라 쌓이는 거예요`}]);
   }
   if(type==="T11"){
     addV([{zh:"我們家沒有[原文提到的療程]，不過如果是想改善[想改善的問題]，可以看看：",ko:"저희는 [원글 시술]은 없지만, [개선하고 싶은 고민]이라면 이걸 봐 보세요:"},{zh:"[原文提到的療程]我們沒有做，但同樣想改善[想改善的問題]的話：",ko:"[원글 시술]은 안 하지만, 같은 [고민]을 개선하고 싶다면:"}]);
-    for(const p of procsFor(a,3))add(`${B} ${P(p).zh}：${p.effZh}`,`${B} ${p.ko}: ${p.effKo}`);
-    if(!a.concerns.length&&!a.procs.length)add(`${B} [替代療程]：[效果]`,`${B} [대체 시술]: [효과]`);
+    for(const p of procsFor(a,3))add(`${B}${P(p).zh}：${p.effZh}`,`${B}${p.ko}: ${p.effKo}`);
+    if(!a.concerns.length&&!a.procs.length)add(`${B}[替代療程]：[效果]`,`${B}[대체 시술]: [효과]`);
   }
   if(type==="T12"){
     const r=a.region||"[原文地區]",rk=a.region||"[원글 지역]";
-    addV([{zh:`我們只有在{CITY}${S.loc?`（${S.loc}）`:""}，${r}沒有分店喔`,ko:`저희는 {CITY}${S.locKo?`(${S.locKo})`:""}에만 있고 ${rk}엔 지점이 없어요`},{zh:`GOLD J在{CITY}，${r}目前沒有據點`,ko:`골드제이는 {CITY}에 있고 ${rk}엔 지점이 없어요`}]);
+    addV([{zh:`我們只有在{CITY}江南${S.loc?`（${S.loc}）`:""}，${r}沒有分店喔～`,ko:`저희는 {CITY} 강남${S.locKo?`(${S.locKo})`:""}에만 있고 ${rk}엔 지점이 없어요~`},{zh:`${C} 在{CITY}江南，${r}目前沒有據點～`,ko:`${CK}은 {CITY} 강남에 있고 ${rk}엔 지점이 없어요~`}]);
     addV([{zh:"如果行程有經過{CITY}，再來找我們{END}",ko:"{CITY}를 지나가는 일정이면 그때 찾아 주세요{END}"},{zh:"之後有排{CITY}的話，歡迎來聊聊{END}",ko:"나중에 {CITY} 일정 있으면 상담받으러 오세요{END}"}]);
     return {lines:L};
   }
   if(type==="T7"){
-    const ps=procsFor(a,2);const n=ps.length?ps:[PROCS[0],PROCS[4]];
+    const ps=procsFor(a,2);const n=ps.length?ps:[PROCS[0],PROCS[6]];
     addV([{zh:`${n.map(p=>P(p).zh).join("、")}！小編自己最有感的是[實際感受]{END}`,ko:`${n.map(p=>p.ko).join(", ")}요! 제가 제일 체감된 건 [실제 느낌]이었어요{END}`},{zh:`投${n.map(p=>P(p).zh).join("跟")}一票，[實際感受]真的有差{END}`,ko:`${n.map(p=>p.ko).join("랑 ")}에 한 표요, [실제 느낌]이 확실히 달라요{END}`}]);
     return {lines:L,warnExp:true};
   }
   if(type==="T8"){
-    add("[針對貼文內容的一句共鳴]{E}","[원글 내용에 대한 짧은 공감 한 줄]{E}");
+    add("[針對貼文內容的一句共鳴，可以活潑一點]{E}","[원글 내용에 대한 공감 한 줄, 밝게]{E}");
     return {lines:L};
   }
 
   /* 차별점 2개 */
   const pool=diffPool().slice();const d=[];while(d.length<2&&pool.length){d.push(pool.splice(Math.floor(rnd()*pool.length),1)[0]);}
-  if(type!=="T6")addV([{zh:`${C}：${d.map(x=>x.zh).join("、")}`,ko:`${CK}: ${d.map(x=>x.ko).join(", ")}`},{zh:`我們${C}${d.map(x=>x.zh).join("，")}`,ko:`저희 ${CK}은 ${d.map(x=>x.ko).join(", ")}`},{zh:`在${C}，${d.map(x=>x.zh).join("，也")}`,ko:`${CK}에서는 ${d.map(x=>x.ko).join(", ")}`}]);
+  addV([{zh:`我們${d.map(x=>x.zh).join("，")}。`,ko:`저희는 ${d.map(x=>x.ko).join(", ")}`},{zh:`${C} ${d.map(x=>x.zh).join("，")}喔～`,ko:`${CK}은 ${d.map(x=>x.ko).join(", ")}`},{zh:`在 ${C}，${d.map(x=>x.zh).join("，而且")}～`,ko:`${CK}에서는 ${d.map(x=>x.ko).join(", ")}`}]);
   if(S.loc&&(type==="T1"||type==="T2"||type==="T6"))add(`📍${S.loc}`,`📍${S.locKo||S.loc}`);
+  if(type==="T14")addV([{zh:"可以先看看院長的案例再決定喔！💕",ko:"원장님 사례를 먼저 보고 결정하세요!💕"},{zh:"真的很值得去看看案例！",ko:"사례 꼭 한번 보세요!"}]);
 
   /* 가격 */
   let priceNote=null;
@@ -546,28 +640,37 @@ function build(a,type){
     const tz=S.tax?`（${S.tax}）`:"",tk=S.tax?` (${S.tax==="含稅"?"부가세 포함":"부가세 별도"})`:"";
     addV([{zh:`${E.price} 價格參考${tz}`,ko:`${E.price} 가격 참고${tk}`},{zh:`${E.price} 直接附上價格${tz}`,ko:`${E.price} 가격 바로 알려드려요${tk}`},{zh:`${E.price} 目前價格${tz}`,ko:`${E.price} 현재 가격${tk}`}]);
     for(const p of sel){const v=P(p),m=money(v.krw),u=v.unit;
-      const zh=[`${B} ${v.zh}${u?` ${u}`:""}｜${m.zh}`,`${B} ${v.zh}${u?` ${u}`:""}：${m.zh}`,`${B} ${v.zh}${u?`（${u}）`:""} ${m.zh}`][E.pf];
-      add(zh,`${B} ${p.ko}${u?` ${u}`:""} | ${m.ko}`);}
+      const zh=[`${B}${v.zh}${u?` ${u}`:""}｜${m.zh}`,`${B}${v.zh}${u?` ${u}`:""}：${m.zh}`,`${B}${v.zh}${u?`（${u}）`:""} ${m.zh}`][E.pf];
+      add(zh,`${B}${p.ko}${u?` ${u}`:""} | ${m.ko}`);}
     addV([{zh:"實際發數會看膚況再建議，報價就是最終價格～",ko:"실제 샷 수는 피부 보고 권해 드리고, 견적이 최종 가격이에요~"},{zh:"面診後不會另外加價，發數也會先跟妳確認～",ko:"상담 후 추가 금액 없고, 샷 수도 먼저 확인해 드려요~"}]);
   }
   else if(a.wantsPrice||type==="T2"){
-    addV([{zh:"價格可以私訊我們，會依妳想做的項目給完整報價～",ko:"가격은 디엠 주시면 원하는 시술 기준으로 전체 견적 드려요~"},{zh:"想知道價格直接私訊就好，會一次報清楚～",ko:"가격 궁금하면 디엠 주세요, 한 번에 정리해 드려요~"}]);
+    addV([{zh:"診所也會不定期推出優惠活動，想了解近期方案歡迎私訊我們唷～",ko:"수시로 혜택도 있어요, 최근 혜택이 궁금하면 디엠 주세요~"},{zh:"價格可以私訊我們，會依妳想做的項目給完整報價～",ko:"가격은 디엠 주시면 원하는 시술 기준으로 전체 견적 드려요~"}]);
     priceNote="가격 질문 글이에요. 금액을 넣으려면 아래 ‘가격 넣기’에서 시술을 고르세요.";
   }
-  const c=pick(CTA,rnd);add(c.zh,c.ko);
+  const c=pick(priceNote?CTA.filter(x=>!x.zh.includes("近期方案")):CTA,rnd);add(c.zh,c.ko);
   return {lines:L,priceNote};
 }
+
+/* 우리 실제 답글 예시 (AI 말투 기준) — 대만답변 최신.txt */
+/* 업데이트 기록: 2026-11-03 대만답변 최신.txt / 2026-11-05 스렐드 답글기 업데이트대만_11.5.txt (최신 파일이 위) */
+const AI_EX_UPDATED="2026-11-05";
+const AI_EX=["第一次一個人出國真的會有點緊張欸～但韓國其實蠻適合獨旅的！🥰 首爾有很多地方可以自己慢慢逛，像聖水洞、延南洞、益善洞都很不錯～吃的話可以試試湯飯、刀削麵，很多店一個人吃也很方便！晚上就盡量不要跑太偏僻的地方，其他不用太擔心啦～十天可以慢慢玩，不用把行程排得太滿，享受自己的步調就好！", "如果有眼下凹陷的困擾，建議可以考慮填充類療程哦～推薦玻尿酸填充，能幫助改善眼下凹陷，讓眼周看起來更加飽滿自然～💕", "非常推薦音波拉提二代療程，不過建議一次施打至少 400 發以上，效果會更理想哦～💕", "非常推薦黃金微針搭配 Juvelook~真的不是智商稅哦！只要根據肌膚狀況規劃適合的療程與次數，持續治療，才能更好地改善肌膚問題～如果有痘印、毛孔粗大或膚質不平整的困擾，非常推薦黃金微針療程哦～建議每個月進行一次，連續做 3～5 次，循序漸進地改善膚質，效果會更好哦～💕", "眼部問題的部分，建議還是先讓院長親自面診，了解您母親目前的眼部狀況後，再由院長推薦適合的療程，這樣才能根據您母親的眼周肌膚狀況，規劃最適合的改善方式哦～💕", "纠结是很正常的～毕竟舒颜萃一次疗程的费用确实不低，如果花了钱却没有达到理想效果，难免会觉得心疼。而且它毕竟属于注射类项目，会有一些顾虑也是可以理解的。说实话，舒颜萃值不值得做，关键还是看你能不能接受它需要一段时间慢慢发挥效果。另外，效果也是因人而异的。有些人改善比较明显，有些人可能感觉变化没有那么大，这和个人的皮肤状态、基础条件等都有关系。也正因为是注射类项目，所以一定要慎重选择医院和医生，找有经验、技术可靠的医生操作，才能更好地保障治疗的安全性和效果哦～💕", "我們 GOLD J 皮膚科為台灣顧客提供專屬中文翻譯服務，讓您在諮詢與療程過程中可以更安心。 您可以直接透過線上與我們預約～ 我們這邊採全預約制喔～💕 建議您提前預約，這樣才能幫您安排好諮詢及療程時間唷！", "第一次體驗韓國醫美的話，真心建議不要只看價格或網路上的熱門療程！我覺得診所是不是流水線式、能不能跟醫師好好溝通，其實更重要。尤其第一次做，最好是由醫師親自面診，依照自己的臉部條件和想改善的問題來規劃，不一定要一次做很多項目～另外也要記得預留恢復期，不要把行程排得太緊喔！💕", "哈哈哈真的欸🤣 女生懂女生在意什麼很重要！尤其第一次做醫美，還是要找個好的女院長才安心～", "真的欸哈哈哈！有時候只是隨口聊幾句，對方就會變得很親切，還會遇到這種意外的小驚喜🤣 感覺一天心情都變好了❤️", "我之前有看過不少人搭真航空耶～算是韓國的廉價航空，價格有時候滿划算的！不過廉航就不要對機上服務有太高期待🤣 記得先確認行李額度跟選位規定～", "真的！資料看越多反而越難選🤣 建議先想好自己最想改善的地方，不要一次安排太多項目～找可以跟院長好好溝通、依照個人條件規劃療程的診所比較重要！", "天啊哈哈哈這真的會慌欸😭 最近仁川機場到底怎麼回事啦！！", "我會推薦先從音波、電波拉提或膚質改善類療程開始喔！😊 不過每個人的膚況和需求不同，還是建議先由院長親自面診，再評估適合的療程，才能達到更理想、自然的效果～❤️如果來韓國做醫美，我會推薦可以了解一下 Gold J Clinic！✨我們不是大量接客的工廠式診所，而是採取 100% 預約制，從術前諮詢到療程施作，皆由院長親自診斷與操作。特別推薦想做音波、電波拉提，或改善膚質、毛孔及痘疤的人，可以先讓院長評估適合的療程。另外，診所也有中文翻譯人員，從諮詢到施作都能提供中文協助，不用擔心溝通問題唷！❤️比起盲目追求熱門療程，更重要的是找到真正適合自己的治療方式！", "如果想在韓國做醫美，可以推薦你們參考一下 Gold J Clinic！🥰我們採用 100% 預約制，非工廠式經營，每位客人都由院長親自面診、評估及施作，不會為了推銷而推薦不必要的療程。不論是美國音波、鳳凰電波拉提，還是膚質改善、毛孔及痘疤治療，都可以由院長依照個人狀況給予建議。而且有中文翻譯人員全程協助，香港、台灣及中國客人都可以安心溝通唷！❤️📍位於首爾江南，交通也很方便！想了解療程、價格或預約時間，都歡迎透過 Gold J Clinic 官方 LINE 聯繫我們，由中文客服協助您安排預約及解答相關問題唷！💬✨ 歡迎私訊索取官方 LINE 預約資訊！", "可以參考一下江南的 Gold J Clinic！🥰 我們採用 100% 預約制，非工廠式經營，所有療程皆由院長親自面診評估及施作。 如果想改善臉部鬆弛、輪廓線條，可以了解我們的美國音波；咀嚼肌肉毒的部分，也可以透過面診確認適合的施打方式及劑量。 我們有中文翻譯人員全程協助，價格也都可以事先透過官方 LINE 詢問，不用擔心溝通問題唷！❤️ 歡迎私訊索取官方 LINE 預約資訊～", "辣炒年糕、糖餅這些都要吃一輪！而且韓國路邊的熱狗也很讚，尤其裹馬鈴薯那種🤤 來都來了就是要吃開心啊", "聖水真的可以逛很久欸哈哈哈🤣 我覺得可以先去逛 Musinsa，韓國衣服品牌很多，想買外套也可以去挖寶！ 還有 Olive Young N Seongsu 也很好逛，跟一般分店不太一樣。香水可以去 Tamburins 聞香，店裡也很好拍照～ 如果還有時間可以去漢南洞，選物店跟服飾店也很多，还有聖水的店家和快閃活動變動很快，出發前可以再確認一下營業資訊喔！", "Olive Young 真的每次進去都會買超多🤣 我自己覺得面膜跟護髮類可以趁黑五囤一下！而且彩妝也很好逛，本來只想買一樣，最後都不知道怎麼拿了一整籃😂", "冬天真的很推薦去景福宮跟北村那一帶！如果剛好遇到下雪真的美到不行🥹 南山塔也很值得去，天氣好的時候看整個首爾的景色很漂亮～還有駱山公園，晚上看城市夜景也很有氣氛！不過12月真的滿冷的，記得穿暖一點哈哈哈", "月底去的話真的要帶厚外套欸！！🥶 尤其晚上逛街或去漢江、南山那種戶外地方會更冷。 我會建議洋蔥式穿搭，裡面發熱衣＋毛衣，外面搭羽絨外套或厚大衣，再帶圍巾、手套！鞋子也要穿好走又保暖的～ 而且韓國室內暖氣很強，所以裡面不要穿太厚，不然進店裡逛一下又熱到不行哈哈哈🤣", "補充一下交通🤣 景福宮、北村、昌德宮其實可以排同一天，這幾個地方都在附近，搭地鐵到安國站或景福宮站再慢慢走就好，不用一直換車！", "如果來韓國玩，首爾真的很推薦！聖水、漢南洞、延南洞都很好逛，咖啡廳跟選物店超多🤣 也可以去景福宮、北村韓屋村走走～如果有安排醫美行程，也可以來江南的 GOLD J Clinic 逛逛附近，離宣陵站很近，順便體驗一下韓國醫美💕", "真的！！韓國最近到處都好有聖誕氣氛🎄 每次看到這些裝飾就覺得年底真的到了哈哈哈，好想趕快去逛聖誕市集🥹❤️", "天啊這也太幸運了吧！！😭🍂 而且人不多真的超加分，拍照完全不用一直等路人走開哈哈哈，這種剛剛好的秋天美景真的會讓人想一直待著❤️", "痛感真的因人而異欸🤣 不過術前通常會敷麻藥，還是可以先跟醫師說自己很怕痛！", "謝謝妳把我們放進名單裡，還花這麼多時間整理，真的好用心❤️ 看到熟悉的名字出現在裡面，莫名有點感動哈哈哈🥹 💕", "其實，選擇一家好的皮膚科診所所重視的條件，Gold J Clinic 都相當重視，也一直以這些標準要求自己！🥰  ✔️ 院長親自面診、評估及施作 ✔️ 不過度推銷，只推薦真正適合的療程 ✔️ 充分溝通，清楚說明療程效果、副作用及注意事項 ✔️ 重視專業判斷與每位顧客的個別需求 ✔️ 100% 預約制，堅持非工廠式經營  從術前諮詢到療程施作，我們希望每位顧客都能感受到專業、安心與用心。  Gold J Clinic 相信，好的醫美不只是把療程做好，更是讓每位顧客都能放心地把自己交給值得信賴的醫師。 ❤️", "第一次去的話我會推首爾耶哈哈哈！景點、逛街、美食、咖啡廳都很多，聖水、弘大、明洞、漢南洞可以逛好幾天都不無聊😂 而且想體驗韓國醫美也可以順便安排江南～", "這次待比較久感覺可以慢慢逛、慢慢買了～希望妳這趟東大門可以挖到超值好貨！妳每次去韓國都會特地買優格嗎😂", "如果想做自然又精緻的唇形，可以了解一下 Gold J Clinic 的橫向擴展唇部玻尿酸唷！💋 我們不只是增加嘴唇的上下厚度，更重視唇部橫向輪廓、整體比例及嘴角線條，打造自然又有精緻感的唇形。 另外還有 GOLD J Touch-up Kiss，這是院長專屬設計的唇部療程，透過雙重設計，兼顧唇部中央飽滿度與唇線細節。 每個人的臉型、表情習慣及唇部條件都不同，會由院長親自評估，進行 1:1 客製化設計唷！", "唇部玻尿酸會隨著時間慢慢被人體代謝，飽滿度也會逐漸下降的。🥰至於疼痛感，每個人的感受不同，施打時通常會有一些脹感或刺痛感。如果想改善唇形，推薦可以了解一下 Gold J Clinic 的唇部玻尿酸療程！我們有院長專屬的 GOLD J Touch-up Kiss，不只是增加嘴唇厚度，也會注重唇部比例、中央飽滿度及唇線細節，打造自然精緻的唇形。💋而且由院長親自面診及施作，會依照每個人的唇形條件客製化設計唷！❤️", "如果喜歡自然、不想要太過誇張的改變，可以參考一下江南的 Gold J Clinic 唷！🥰 我們很重視臉部整體比例，不是單純把某個部位打得飽滿，而是會由院長親自面診，依照個人的臉型、五官比例及需求，評估適合的填充方式。 唇部也有院長專屬設計的 GOLD J Touch-up Kiss，著重唇部中央飽滿度、唇線細節及整體比例，打造自然精緻的唇形。💋 如果是下巴，也會以符合原本臉型比例、自然協調為主要考量，不會刻意追求過尖或過長的下巴唷！ 而且我們採用 100% 預約制，由院長親自診斷及施作，也有中文翻譯人員全程協助", "我覺得早上用化妝水棉片比較方便欸！不用敷太久，擦一下或局部濕敷個幾分鐘就好💕", "可以了解一下首爾江南的 Gold J Clinic！🥰我們有院長專屬的 GOLD J Touch-up Kiss，不只是增加嘴唇厚度，也很重視唇部比例、飽滿度及唇線細節，打造自然精緻的唇形。💋由院長親自面診及施作，也有中文翻譯人員全程協助唷！", "真的～自然款看起來就是特別耐看！我們幫女生調整唇形時，也比較常做稍微飽滿一點的韓系感，不會太誇張，但整個唇形會更精緻，真的蠻好看的✨", "真的很好看耶！😍 很喜歡這種自然又精緻的唇形，不會太誇張，擦上口紅後整個唇部線條更漂亮了～❤️ Gold J Clinic 的唇部玻尿酸也真的很值得推薦，院長很擅長依照臉部比例設計唇形，打造自然又有飽滿度的美唇！💋", "可以了解一下首爾江南的 Gold J Clinic！🥰 如果本身嘴唇不薄，但想要微笑唇，不一定需要一味增加厚度或寬度，重點是依照原本唇形調整唇角、唇線及整體比例。 Gold J 有院長專屬的 GOLD J Touch-up Kiss，會針對唇部中央飽滿度、唇線及嘴角進行細緻設計，追求自然精緻、不過度腫脹的唇形。💋 而且是 100% 預約制，由院長親自面診及施作，也可以先看術前術後案例再決定唷！❤️", "其實唇部玻尿酸真的很看醫師技術耶！🥹 我覺得不是打越多就越好看，還是要看原本的唇形和比例去調整，不然一不小心真的很容易變得不自然。 而且如果本身就很怕瘀青、腫好幾天，真的要慎選醫師😂 我自己會比較偏好那種不會一直推療程，而是願意先好好溝通、設計適合自己唇形的診所。 韓國 Gold J Clinic 有專屬的 TOUCH UP KISS 唇部玻尿酸療程，採 100% 預約制，由院長親自面診及施作，也有中文翻譯人員協助。對不太會韓文的人來說真的方便很多～可以先列入參考看看💕", "如果不想找流水線式的醫美，真的可以看看 Gold J Clinic！🥹私心很想推薦我們代表院長的 TOUCH UP KISS！院長在唇部玻尿酸的唇形設計上真的很有自己的美感，不是單純把嘴唇打得很飽滿，而是會依照每個人原本的唇形、比例去設計，做出自然又有精緻感的唇形💋而且是院長親自面診、親自施作，不是諮詢完就換別人操作的那種。診所也是 100% 預約制，不走大量接客路線。如果人在首爾，又很在意唇形設計和自然度，真的很推薦可以去了解一下 TOUCH UP KISS！💕", "可以推薦看看我們 Gold J Clinic 代表院長的 TOUCH UP KISS 唷！💋 代表院長在唇部玻尿酸的技術和唇形設計上真的很厲害，會依照每個人原本的唇形和比例去調整，不是單純追求飽滿，而是更重視整體的自然感和精緻度🥹", "可以優先找弘大、明洞、乙支路、東大門這幾個區域！- 弘大：交通方便，吃東西、逛街都很方便。- 明洞：觀光客多，生活機能好，晚上回住宿也比較安心。- 乙支路：位置很不錯，去明洞、聖水都算方便。- 東大門：住宿選擇多，晚上想逛街也方便。", "這裡這裡！🙋‍♀️ 可以看看我們 Gold J Clinic～私心推薦我們代表院長，審美真的很在線！🥹 不是單純把鼻子打高，而是會依照每個人的五官比例和整體臉型去設計，讓鼻子看起來自然又有立體感，不會有太刻意的感覺。真的很推薦可以去了解看看💕", "如果是在首爾的話，可以看看 Gold J Clinic！🥹 我們代表院長本身就是很專業的玻尿酸填充醫師，尤其唇部玻尿酸真的很有名，還有專屬的 TOUCH UP KISS 唇形設計療程💋我覺得院長很厲害的地方是，不會只是單純把部位填飽滿，而是會依照每個人的五官比例和原本的輪廓去設計。嘴唇和下巴都很重視整體比例，做出來才不會有突兀感～可以去看看院長的案例喔！💕", "终于！！🥹 先把想吃的、想逛的清单列起來哈哈哈，这次最期待的是什么呀💕", "牛腸烤肉真的要趁在韓國的時候吃啊啊啊🥹 希望妳可以找到飯友一起！！", "懂！！🥹 嘴唇真的很影響整個人的精緻感耶～如果想打又怕不自然，可以看看韓國 Gold J Clinic！私心推薦我們代表院長的 TOUCH UP KISS 💋 院長很擅長唇部玻尿酸，會依照每個人的原生唇形和五官比例設計，不是單純把嘴唇打得很厚、很飽滿，而是更重視唇形線條和整體比例。診所也是 100% 預約制，由院長親自面診、親自施作，真的很值得去看看案例！💕", "如果在首爾的話，私心推薦可以看看 Gold J Clinic！🥹 尤其是想改善下嘴唇比較薄的問題，可以了解一下他們代表院長的 TOUCH UP KISS 💋我們代表院長很擅長唇部玻尿酸，會依照原本的唇形、上下唇比例及五官整體設計，不是單純一直增加填充量，而是讓唇形看起來更自然、飽滿又有精緻感。而且是 100% 預約制，院長親自面診、親自施作，也有中文翻譯人員協助，對台灣人來說也很方便～可以先看看案例參考喔！💕", "哈哈哈兩個人去六天感覺刷卡應該蠻夠用的～但還是多帶一點現金比較安心啦！有些市場、小吃攤不一定能刷卡🤣 零食真的推薦去超市挖寶，韓國超市超好逛，每次都會不小心買一堆哈哈哈", "來來來！🙋‍♀️ 給你看看我們 Gold J Clinic 的唇部玻尿酸案例！💋 我們代表院長的 TOUCH UP KISS 真的很值得參考，會依照每個人的原生唇形和五官比例設計不同的唇形，不是每個人都打成一樣的厚唇～自然又有精緻感！🥹💕", "如果只想要一點點嘟嘟的感覺，其實更考驗醫師的唇形設計耶！🥹 私心推薦可以看看韓國 Gold J Clinic 的 TOUCH UP KISS 💋 我們代表院長很擅長唇部玻尿酸，會依照原本的唇形和五官比例調整，不是單純把嘴唇打厚，也可以針對唇線不順、上下唇比例去做細緻設計。而且院長親自面診、親自施作，100% 預約制，不走大量接客路線。如果喜歡自然、微微嘟的唇形，真的可以看看我們院長的案例！💕", "姐妹！！要來韓國長住了嗎🥹💕 那真的要準備不少東西欸～除了簽證、住宿，手機門號、銀行帳戶也要先研究一下！而且韓國冬天超冷，保暖衣服一定要準備好哈哈哈🤣 妳是打算來韓國工作還是先住一陣子呀？", "哈哈哈來韓國真的很容易順便安排醫美🤣 不過還是要看妳最想改善哪個部分欸～像是想緊緻拉提、改善毛孔膚質，還是補一下臉部凹陷？先想好自己在意的地方，到時候再讓院長評估會比較好💕", "韓國醫美真的好多可以選喔🤣 我自己覺得不用跟風做熱門項目，還是要看妳最想改善什麼！像是毛孔、膚質可以了解一下黃金微針，想改善鬆弛可以評估音波或電波～第一次做的話，建議先找院長面診，看看自己適合什麼再決定💕", "雖然妳說不要廣告，但我還是很想推薦一下我們 Gold J Clinic 的代表院長！🥹💕 因為院長真的很擅長唇部玻尿酸，尤其在唇形設計方面很有自己的美感。不是單純追求嘴唇變厚、變大，而是會依照每個人原本的唇形及五官比例來調整，讓整體看起來自然又精緻。而且還有專屬的 TOUCH UP KISS 唇部療程！💋 如果想在韓國打嘴唇，真的可以先看看我們院長的案例，審美這方面我很有信心！💕", "13 天在韓國真的可以好好安排一趟旅行耶！🥹💕 行程還沒排滿也沒關係，說不定還能留點時間給自己放鬆一下～如果有空的話，也可以來 Gold J Clinic 逛逛，順便讓自己悄悄變美一下！我們是 100% 預約制，也有中文翻譯人員，不用太擔心語言問題～把旅行和變美一起安排進去吧！💗", "哈哈哈這趟行程也太豐富了吧🤣 醫美真的不用特別追求必做項目，先看自己最想改善什麼再挑比較好～吃的話可以多試試韓國在地小店，不一定要去網紅名店！南大門童裝市場可以好好逛一下，記得穿好走的鞋，不然真的會逛到腿痠哈哈哈😂 希望妳這趟挖到好多寶！", "我們診所的櫃檯美女如雲，想買一個送給每位妹妹！💕", "11月中下旬的首爾真的不能再當秋天穿了啦🤣 尤其早晚溫差很大，月底甚至會有點冬天的感覺！", "首爾這幾天白天還好，但早晚溫差真的很大欸！🥹 明天大約 4～16°C，週五開始會明顯降溫，週末甚至可能剩 7～9°C。", "真的假的啦 妳講得我現在也好想吃！！本來沒注意過這個😂 是不是那種吃一口就停不下來的程度哈哈哈", "咖啡糖居然還有榛果口味！！這個我真的沒吃過欸🤣 喜歡咖啡的人應該會很愛吧哈哈哈～現在被妳講到好想去買來試試看，榛果真的有這麼好吃嗎😂", "其實首爾不購物也有很多好玩的欸！可以去景福宮、昌德宮走走，喜歡藝術的話也可以逛國立現代美術館，或是去漢江公園野餐、散步～我覺得首爾很適合慢慢走、感受當地生活！🥹", "妳也太會買了吧！！黑五買的嗎🥹", "這是我們診所樓下一樓的咖啡廳，咖啡還蠻好喝的喔！", "真的會有這種感覺🥹 尤其第一次去韓國做醫美，看到一堆推薦文反而更不知道怎麼選了哈哈哈。比起看誰推薦哪家，我覺得先確認醫師資格、能不能親自面診、是不是醫師本人操作，還是比較重要！", "可以試試望遠洞！！我覺得那邊比弘大更有生活感，有傳統市場、很多在地小店，還可以慢慢散步去漢江公園～另外乙支路也不錯，白天跟晚上完全不同的氛圍🤣 如果想體驗比較日常的首爾，我會推望遠！", "妳這行程根本購物大作戰欸🤣 我會建議帶個40～50萬韓幣比較安心，尤其廣藏市場、東廟買衣服，有些攤位還是現金比較方便！但不用全部都換成現金啦～OLIVE YOUNG 明洞旗艦店可以用支付寶，大創、阿迪達斯這些就建議準備信用卡當備用。阿迪外套要看款式，普通運動外套大概10～15萬韓幣左右，厚外套可能會到20萬以上。", "如果要我選：- 第一次來：明洞- 喜歡熱鬧：弘大- 想體驗首爾日常又有特色：乙支路- 喜歡咖啡廳和拍照：聖水", "首爾歡迎你！💕 希望這趟旅程充滿美好回憶～🥰", "可以先線上詢問真的很方便耶！🥰 尤其是第一次來首爾做醫美，而且停留時間不長，提前了解療程、價格和預約方式，可以省下不少時間喔～不過也建議先不要急著決定療程，最好先讓專業醫師評估，再依照自己的肌膚狀況和想改善的問題安排療程，這樣會比較安心💕", "哇～歡迎來韓國！✈️ 希望這趟韓國之旅有滿滿的驚喜和美好回憶，玩得開心喔！💕", "真的懂這種心情🥹 第一次來韓國做醫美，最重要的就是溝通順暢、醫師親自評估，而且不想一進診所就被推銷一堆療程！ GOLD J Clinic 💕 我們不是流水線式的診療模式，重視院長一對一面診，依照每個人的臉部條件和需求規劃療程，也有中文溝通服務，不用擔心比手畫腳～ 希望每位來韓國變漂亮的朋友，都能安心、自在地完成療程🥰 而且可以先透過 LINE 用中文詢問，提前溝通想改善的問題和預約時間喔！", "首爾真的很好逛！🥰 必買 Olive Young 的化妝品，必吃韓式烤肉、辣炒年糕、炸雞和廣藏市場的小吃！Seongsu 聖水洞也很推薦，很多特色咖啡廳和漂亮的小店～💕", "暖暖包！ 最重要的是洋蔥式穿搭！ 室外很冷，但進到百貨公司、餐廳和地鐵又很暖，方便穿脫才不會忽冷忽熱～❤️", "如果是為了看史努比，那我超推薦你把 濟州島的 Snoopy Garden（史努比花園） 排進行程！😍💕 這裡根本是史努比迷的天堂，不只是拍照打卡，還可以慢慢逛展覽、花園和周邊商店。而且我會推薦 春天（4～5月）或秋天（9～10月） 去，天氣比較適合戶外散步、拍照，也能欣賞濟州島的自然風景。 如果是第一次來韓國，我會推薦首爾＋濟州島安排 5～7 天，這樣購物、美食、景點和史努比都能一次滿足！🥰", "歡迎你來首爾的 GOLD J Clinic 喔～💕 豐唇、瘦臉肉毒和皮膚管理都可以先透過 LINE 中文諮詢！我們採預約制，也會由院長親自面診，依照個人需求規劃療程，不會盲目推銷～如果只待4天，建議第一天或第二天安排面診和療程，後面還有時間觀察恢復狀況，不用把行程排得太趕🥰歡迎來韓國玩，也希望這趟變美之旅順順利利！🇰🇷❤️", "如果是11月中旬去首爾，我會建議不用整天穿厚重羽絨服，但最好帶一件輕薄羽絨外套或保暖外套！ 🥶首爾白天有陽光時可能還算舒服，但早晚溫差、風吹起來的體感溫度會比較低，尤其晚上逛街、走路很久的話，還是要注意保暖。", "這種情況有可能是外油內乾的膚質哦～🥺💕 建議先加強肌膚保濕、修護屏障，選擇清爽但保濕力足夠的保養品，避免過度清潔或使用刺激性產品。如果還是不確定自己的膚質，也可以來 Gold J Clinic 讓我們幫您評估看看喔～😊\n如果有出油、乾燥，還伴隨毛孔粗大或膚質不平整的問題，也可以考慮我們 Gold J Clinic 的黃金微針療程哦～💕\n黃金微針可以幫助改善毛孔粗大、膚質粗糙，讓肌膚看起來更加細緻、平滑！\n不過還是要先評估您的肌膚狀況，再由院長為您推薦適合的療程喔～😊", "如果你近期有計畫到韓國江南做醫美，可以參考一下 Gold J Clinic～🤍\n診所有提供中文翻譯服務，從術前諮詢、院長面診到療程過程，都有中文工作人員協助溝通，第一次來韓國做醫美也不用擔心語言問題🥰\n我們採取一對一面診制度，由院長親自評估膚況、了解需求並親自施作，依照每個人的狀況給予適合的療程建議。\n另外，診所也會不定期推出優惠活動，想了解近期方案或安排預約，歡迎提前聯繫我們唷～🤍", "好膚質真的不是靠單一秘訣🙋‍♀️\n我們會分成兩部分來看：\n• 在家：防曬、保濕做好，清潔不要太用力\n• 醫美：黃金微針 喬雅露 Juvelook（毛孔、膚質）、麗珠蘭 Rejuran（修復、膚質細緻）、Geneo X（暗沉、透亮）\n👉 重點是持續\n在GOLD J 皮膚科，我們採取一對一面診制度，由院長親自評估膚況、了解需求並親自施作\n主頁有更多案例，可以先逛逛🤍", "可以參考 Gold J Clinic 診所哦～💕 我們採取一對一由院長親自面診評估，並由院長親自施作療程，不是流水線式的診所。也會依照每個人的肌膚狀況與需求，提供適合的療程建議，不會一味推銷哦！歡迎私訊我們了解更多～😊", "如果有計畫到韓國做醫美，也可以看看位於江南的 Gold J Clinic～🥰🤍 診所有提供 Potenza 黃金微針療程，採取院長一對一面診的方式，會先了解每個人的需求，再針對毛孔、痘疤及膚質問題，評估適合的療程。\n另外，診所也有中文翻譯人員全程協助，從諮詢到施作都能安心溝通！如果明年一月有安排韓國行程，歡迎先私訊了解療程細節及最新優惠唷～✨", "如果只能選一個，建議先看自己的肌膚狀況和想改善的問題哦～💕 音波主要針對肌膚鬆弛、輪廓線下垂；電波則比較著重於緊緻肌膚、改善細紋及膚質。Gold J Clinic 提供 Ultherapy PRIME 美版音波及 Thermage FLX 電波療程，會由院長親自面診評估，再依照您的需求推薦適合的療程，不需要盲目跟風選擇喔～", "電波＋音波一起施作，確實是很多人會考慮的搭配方式喔！🥰\n電波主要是改善肌膚緊緻度、細紋，音波則著重於深層拉提與輪廓線改善。不過還是要看個人的皮膚厚度、脂肪分布及鬆弛程度來評估，不一定每個人都需要兩種一起做。\n建議先由 GOLD J Clinic 院長一對一面診，再評估適合的搭配方式，才能避免過度施作唷～", "如果剛好有來首爾，也歡迎來 GOLD J Clinic 讓院長一對一面診，根據臉部脂肪分布及肌膚鬆弛程度，評估適合的發數與能量，不會為了追求效果而盲目提高能量喔～🥰\n另外，療程前會先敷麻藥，也有止痛針及麻醉方式可以選擇，可以事先與院長討論喔！其實美國音波沒有想像中那麼可怕，不用太緊張～💕", "如果您不想去流水線式的診所，可以參考看看 GOLD J Clinic 喔～🥰\n我們採取 100% 預約制，由院長親自一對一面診，根據每個人的臉部條件、肌膚狀況及需求，評估適合的電波或音波療程。\n而且所有療程皆由院長們親自施作，從術前諮詢到療程規劃都會仔細確認，也有中文翻譯人員全程協助溝通。\n希望每位顧客都能安心變美，找到真正適合自己的療程，而不是盲目追求施作數量喔～", "明天首爾白天大約 14～15°C，早晚可能只有 5～8°C，溫差滿大的喔！ 白天有太陽的時候還算舒服，但早晚真的會有點冷🥶 建議可以穿毛衣搭配厚一點的外套，如果怕冷的話，羊毛大衣也可以帶著！記得洋蔥式穿搭，才不會一下冷一下熱～💕", "第三天還沒排行程的話，可以考慮安排一下韓國醫美行程呀～🥰\n難得來韓國玩，也可以趁這個機會體驗看看韓國的醫美，順便讓院長幫你評估一下適合什麼療程！說不定會成為這趟旅行很特別的回憶呢～💕\nGOLD J Clinic 就在江南宣陵站 1 號出口附近，交通也很方便，可以安排在第三天去走走、體驗一下唷！", "11月底的首爾真的會開始有冬天的感覺了啦～🥹 尤其早晚溫差滿大的！\n如果本身很怕冷，真心推薦一定要準備發熱衣、厚毛衣，再搭配羽絨外套或保暖的大衣！圍巾、手套也很重要，尤其在外面走路逛街的時候真的差很多～", "韓國秋冬真的不能錯過鯛魚燒啦！😍 尤其熱熱吃、外皮酥酥脆脆的，配上滿滿紅豆餡，光想就流口水了🤤 一定要買來吃吃看！", "如果是帶長輩一起去，而且主要目的是看楓葉，我會比較推薦 奧林匹克公園＋石村湖水公園！🍁\n兩個行程的差別主要在於：\n- 南怡島：比較有郊遊、賞楓的氛圍，風景漂亮，但需要搭車往返，還要搭船上島，走路時間也比較長。\n- 奧林匹克公園＋石村湖：比較輕鬆，可以慢慢散步、拍照、喝咖啡，累了也比較容易找地方休息。", "12月來首爾真的要做好保暖準備！🤣💕 而且你不吃甜食、不吃澱粉的話，其實韓國有很多傳統料理很適合你，不一定要吃炸雞、年糕、烤肉配飯那些觀光客常吃的東西。\n我反而會推薦你找一些韓國在地人平常吃的老店，像是烤魚、白切肉、豬腳、海鮮鍋，這些都很值得吃！", "第一次來首爾的話，真的不只有逛街跟吃美食可以玩呀！😍\n除了妳列出的景福宮、韓屋村、明洞、廣藏市場，我也很推薦聖水洞、益善洞、南山首爾塔和漢江公園！\n尤其是聖水洞，有很多特色咖啡廳、選物店和韓國品牌快閃店，很適合安排半天慢慢逛～\n另外，如果來韓國旅遊，也可以順便安排一下韓國醫美行程呀！💕\n偷偷推薦一下 GOLD J Clinic，位於首爾江南，採 100% 預約制，不走大量接客模式，由院長親自面診、診斷及施作，還有中文翻譯服務。\n可以趁旅遊的時候，讓自己除了吃好、玩好，也美美地回家！🥰", "哈哈哈韓國秋冬真的不能小看！🤣 尤其早晚溫差比較大，建議一定要帶厚外套、毛衣、圍巾，還有保暖內搭！\n如果會去戶外景點走走，像景福宮、北村韓屋村，真的要注意保暖，風大的時候會冷到懷疑人生😂\n洋蔥式穿搭最安全！寧願多帶一件，也不要在韓國冷到發抖～🧣❄️💕", "偷偷推薦 GOLD J Clinic！位於首爾江南，採 100% 預約制，由院長親自面診及施作，還有中文翻譯服務。\n建議先做好功課、安排好預約，姐妹們一起來韓國吃喝玩樂，也要美美地回家呀！😍✨", "其實很適合呀～～🥰 不用因為冬天冷就不敢做醫美！\n而且韓國冬天室內暖氣很強，反而要特別注意術後保濕跟防曬就好～\n如果剛好來韓國玩，也可以趁這個機會體驗一下韓國醫美呀💕 不過記得要預留一點恢復時間，不要把療程排在回國前一天，這樣行程也比較輕鬆唷！", "懂！！🥹 首爾的初雪真的有一種特別的氛圍欸～尤其是飄著雪走在街頭，整個城市都變得好浪漫❄️", "都來韓國了，真的可以順便安排一下醫美呀～🤣💕 難得來一趟，體驗一下韓國醫美也不錯！可以先給院長看看適合做什麼，不用急著決定啦～🥰", "真的！！韓國冬天雖然冷到不想出門，但美食又多到讓人捨不得待在家🤣 帝王蟹半價也太讚了吧！！而且草莓季快到了，光想到就開始期待了🍓❤️", "真的！！韓國護膚品真的很值得挖寶欸🤣 找到適合自己的產品，皮膚慢慢變穩定真的超有成就感！難怪會越買越多哈哈哈💕", "真的會冷到懷疑人生🤣🥶 尤其首爾早晚溫差大，晚上逛街、等公車的時候會特別有感！\n\n目前 11 月初首爾白天約 13～16°C，早晚可能降到 5～8°C，接下來幾天還會再降溫", "哈哈哈被你這樣一說真的很想買來吃欸🤣 本來跟風買結果意外挖到寶最開心了！香蒜口味聽起來就超讚🥐🤤", "第一個牌子另一款“護髮精華”很好用喔！💕", "被你這樣一說我也好想吃！去看 SBS 還有這種隱藏版美食可以順便買，太幸福了吧～🍞🤤", "如果有毛孔粗大、痘印或痘疤的困擾，推薦可以考慮黃金微針搭配 Juvelook 改善哦～", "如果一直反覆長痘痘，也可以考慮黃金微針搭配外泌體療程來改善哦～💕 如果有毛孔粗大、痘印或痘疤的困擾，推薦可以考慮黃金微針搭配 Juvelook 改善哦～", "如果妳是方圓臉，除了咀嚼肌比較發達之外，也有可能是唾液腺肥大造成的喔！所以建議先由專業醫師評估，確認臉部較寬的原因，再決定適合的療程。畢竟每個人的臉型和肌肉分布都不同喔"];
+/* 각 실제 답글의 분류 (여러 개면 첫 번째가 주 분류) */
+const EX_TYPES=[["T13"], ["T14"], ["T3", "T5"], ["T3", "T9"], ["T3"], ["T9"], ["T1", "T6"], ["T1"], ["T8"], ["T8"], ["T13"], ["T1"], ["T8"], ["T1", "T3"], ["T1"], ["T1", "T3"], ["T13"], ["T13"], ["T10", "T13"], ["T13"], ["T13"], ["T13"], ["T13"], ["T8"], ["T8"], ["T6"], ["T8"], ["T1"], ["T13"], ["T8"], ["T14"], ["T14", "T5"], ["T14"], ["T10", "T8"], ["T14"], ["T14", "T4"], ["T14", "T4"], ["T14"], ["T14"], ["T14"], ["T14"], ["T13"], ["T14"], ["T14"], ["T8"], ["T8"], ["T14"], ["T14"], ["T13"], ["T14"], ["T14"], ["T13"], ["T3"], ["T3"], ["T14"], ["T13"], ["T13"], ["T8"], ["T13"], ["T13"], ["T8"], ["T8"], ["T13"], ["T8"], ["T8"], ["T1"], ["T13"], ["T13"], ["T13"], ["T13"], ["T1", "T2"], ["T13"], ["T1"], ["T13"], ["T13"], ["T13"], ["T1", "T13"], ["T13"], ["T10"], ["T1", "T6", "T2"], ["T10"], ["T1"], ["T1", "T2"], ["T3", "T5"], ["T4"], ["T5", "T6"], ["T1"], ["T13"], ["T13"], ["T13"], ["T13"], ["T13"], ["T13"], ["T13"], ["T13"], ["T1"], ["T9", "T13"], ["T8"], ["T13"], ["T8"], ["T10", "T8"], ["T13"], ["T8"], ["T10"], ["T8"], ["T3"], ["T3"], ["T9"]];
 
 /* ---------- 검수 ---------- */
 const RISK=[["保證","효과 보장"],["一定","단정 표현"],["最好","최상급 표현"],["第一","최상급 표현"],["最便宜","최상급 가격 표현"],["無副作用","부작용 없음 단정"],["零風險","위험 없음 단정"],["無修復期","회복기간 없음 단정"],["幾乎無修復期","회복기간 없음 단정"],["效果更好","비교 우위 표현"],["比韓版","비교 표현"],["永久","영구 효과 표현"],["100%","단정 수치"],["包你","효과 보장"]];
 function check(zh,r){
   const out=[];
-  const risks=RISK.filter(([w])=>zh.includes(w));
+  if(r&&r.fromEx&&/°C|\d+\s*月|明天|今天|這幾天|週[一二三四五六日末]|黑五|聖誕|最近/.test(zh))out.push(`<div class="alert warn">예전 답글이라 날씨·날짜·시기 정보(기온, 몇 월, 내일, 블랙프라이데이 등)가 들어 있어요. 오늘 상황에 맞게 고쳐서 올려 주세요.</div>`);
+  const zc=zh.replace(/100%\s*預約制?/g,"");const risks=RISK.filter(([w])=>zc.includes(w));
   if(risks.length)out.push(`<div class="alert warn">의료광고 주의 표현: ${risks.map(([w,k])=>`<b>${esc(w)}</b>(${k})`).join(", ")}</div>`);
   if(/\[[^\]]+\]/.test(zh))out.push(`<div class="alert warn">대괄호 [ ] 빈칸이 남아 있어요. 답글 칸에서 직접 채워 주세요.</div>`);
   if(state.type==="T11")out.push(`<div class="alert note">원글에 나온 시술 중 저희 병원에 없는 걸 [ ]에 적어 주세요. 비슷한 효과의 시술로 안내하되 “같은 효과”라고 단정하지 않는 게 좋아요.</div>`);
   if(r&&r.warnExp)out.push(`<div class="alert note">‘소편 체험’ 답글은 실제로 시술받은 직원 경험일 때만 쓰세요.</div>`);
   if(r&&r.priceNote)out.push(`<div class="alert note">${esc(r.priceNote)}</div>`);
+  if(state.type==="T13")out.push(`<div class="alert note">여행·일상 글 답글이에요. 팁·공감이 먼저, 시술 얘기는 한 줄만. 빼려면 병원 설정에서 ‘여행·일상 글 답글에 시술 한 줄 넣기’를 끄세요.</div>`);
   if(state.a&&state.a.busan&&state.type!=="T12")out.push(`<div class="alert note">원글이 서울 외 지역(부산 등) 이야기예요. 답글을 달지 않거나 “서울 일정이 있으면” 식으로 다듬는 걸 권해요.</div>`);
   if(zh.length>260)out.push(`<div class="alert note">답글이 ${zh.length}자예요. 스레드에서는 200자 안팎이 잘 읽혀요.</div>`);
   if(!out.length)out.push(`<div class="alert ok">주의 표현·빈칸 없음. 게시 전 한 번만 읽어 주세요.</div>`);
@@ -578,41 +681,187 @@ function check(zh,r){
 const state={a:null,type:null,text:"",priceSel:new Set()};
 function renderAnalysis(){
   const a=state.a;
-  const typeChips=Object.entries(TYPES).map(([k,v])=>`<button class="chip${k===state.type?" on":""}" data-t="${k}" aria-pressed="${k===state.type}">${k} ${v.name}</button>`).join("");
+  const typeChips=Object.entries(TYPES).map(([k,v])=>`<button class="chip${k===state.type?" on":""}" data-t="${k}" aria-pressed="${k===state.type}">${k} ${v.name}<span class="kw"> · 답글 ${exCnt(k)}</span></button>`).join("");
   $("typeLine").textContent=`유형: ${state.type} ${TYPES[state.type].name}`;
   const hit=(a.hits[state.type]||[]);
   $("analysis").innerHTML=`
     <div><h2 style="margin-bottom:6px">분류 결과</h2><div class="chips">${typeChips}</div>
     <p class="kw" style="margin:6px 0 0">${hit.length?`감지 키워드: ${hit.map(esc).join(", ")}`:"직접 일치한 키워드 없음 — 유형을 확인해 주세요."}</p></div>
     <div class="row">${a.concerns.map(c=>`<span class="tag">고민 · ${CONCERNS[c].ko}</span>`).join("")}${a.procs.map(id=>`<span class="tag">시술 언급 · ${ALL().find(p=>p.id===id).ko}</span>`).join("")}${a.wantsPrice?`<span class="tag">가격 질문</span>`:""}</div>`;
-  $("analysis").querySelectorAll("[data-t]").forEach(b=>b.addEventListener("click",()=>{state.type=b.dataset.t;renderAnalysis();generate();}));
+  $("analysis").querySelectorAll("[data-t]").forEach(b=>b.addEventListener("click",()=>{state.type=b.dataset.t;exRank=rankEx(state.text,state.type);exPos=0;renderAnalysis();generate();}));
 }
 let lastR=null;
+/* ---------- 실제 답글 매칭 ---------- */
+const EX_TOP=6,EX_MIN=3;
+const EX_INTENT=[/痛|麻藥|麻醉|可怕|怕/,/穿|冷|溫差|保暖|外套|°C|天氣|下雪/,/吃|美食|餐廳|好吃|零食|宵夜/,/住宿|住哪|飯店|區/,/現金|刷卡|換錢|預算|韓幣/,/唇|嘴/,/鼻|下巴|眼下|淚溝/,/價格|多少錢|優惠|報價/,/一個人|獨旅/,/毛孔|痘|膚質|出油|乾/,/鬆弛|拉提|音波|電波|輪廓/,/翻譯|中文|語言/,/流水線|推銷|預約/];
+let exRank=[],exPos=0,exInfo=null,exIdf=null;
+function exNorm(t){return String(t).toLowerCase().replace(/[^\u4e00-\u9fffa-z0-9]+/g," ");}
+function exGrams(t){const g=new Set();for(const w of exNorm(t).split(" ")){if(!w)continue;if(/^[a-z0-9]+$/.test(w)){if(w.length>2)g.add(w);continue;}for(let i=0;i<w.length-1;i++)g.add(w.slice(i,i+2));}return g;}
+function exPrep(){
+  if(exInfo)return;
+  exInfo=AI_EX.map(e=>{const a=analyze(e);return {g:exGrams(e),type:a.type,med:a.medical,con:a.concerns,pro:a.procs,len:e.length};});
+  const df={};for(const x of exInfo)for(const g of x.g)df[g]=(df[g]||0)+1;
+  const N=exInfo.length;exIdf={};for(const k in df)exIdf[k]=Math.log((N+1)/(df[k]+.5));
+}
+function exCnt(k){return EX_TYPES.filter(t=>t.includes(k)).length;}
+function rankEx(text,type){
+  exPrep();const pg=exGrams(text),a=analyze(text);
+  const out=exInfo.map((x,i)=>{let s=0;for(const g of pg)if(x.g.has(g))s+=(exIdf[g]||0);
+    s=s/Math.sqrt(1+x.g.size/40);
+    if(EX_TYPES[i]&&EX_TYPES[i].includes(type))s+=8;
+    if(EX_TYPES[i]&&EX_TYPES[i][0]===type)s+=2;
+    const raw=AI_EX[i];for(const re of EX_INTENT)if(re.test(text)&&re.test(raw))s+=3;
+    for(const c of a.concerns)if(x.con.includes(c))s+=2.5;
+    for(const p of a.procs)if(x.pro.includes(p))s+=2.5;
+    if(!!a.medical!==!!x.med)s-=4;
+    return {i,s};});
+  return out.sort((p,q)=>q.s-p.s);
+}
+function exKoCache(){try{return JSON.parse(localStorage.getItem("gj-ex-ko")||"{}")||{};}catch(e){return {};}}
+function exKoSave(k,v){try{const c=exKoCache();c[k]=v;localStorage.setItem("gj-ex-ko",JSON.stringify(c));}catch(e){}}
+let exTrCtl=null;
+async function translateEx(idx){
+  const key=AI_EX[idx].slice(0,60);
+  if(exTrCtl)exTrCtl.abort();const ctl=exTrCtl=new AbortController();
+  try{const t=await callAI("너는 번역가다. 설명이나 머리말 없이 번역문만 출력한다.","다음 번체 중국어 SNS 답글을 자연스러운 한국어로 번역해. 이모지는 유지.\n\n"+AI_EX[idx],{model:"claude-haiku-5-5",quick:true,max:800,signal:ctl.signal});
+    exKoSave(key,t.trim());
+    if(lastR&&lastR.fromEx&&lastR.idx===idx&&!state.edited){$("outKo").textContent=t.trim()+(lastR.koTail||"");}
+  }catch(e){if(exTrCtl===ctl&&lastR&&lastR.idx===idx){const m=aiErrMsg(e);if(m)$("outKo").textContent="한국어 해석을 불러오지 못했어요. "+m;}}
+}
+function exReply(){
+  if(!exRank.length)return null;
+  const pool=exRank.filter(r=>EX_TYPES[r.i]&&EX_TYPES[r.i].includes(state.type)).slice(0,EX_TOP);
+  if(!pool.length)return null;
+  const pick=pool[exPos%pool.length],idx=pick.i;
+  const zhL=[AI_EX[idx]],koT=[];
+  let priceNote=null;
+  const sel=[...state.priceSel].map(id=>ALL().find(p=>p.id===id)).filter(p=>p&&P(p).krw);
+  if(sel.length){newStyle();const tz=S.tax?`（${S.tax}）`:"",tk=S.tax?` (${S.tax==="含稅"?"부가세 포함":"부가세 별도"})`:"";
+    zhL.push(`${E.price} 價格參考${tz}`);koT.push(`${E.price} 가격 참고${tk}`);
+    for(const p of sel){const v=P(p),m=money(v.krw);zhL.push(`${E.bul}${v.zh}${v.unit?` ${v.unit}`:""}｜${m.zh}`);koT.push(`${E.bul}${p.ko}${v.unit?` ${v.unit}`:""} | ${m.ko}`);}}
+  else if(state.a&&state.a.wantsPrice)priceNote="가격 질문 글이에요. 금액을 넣으려면 아래 ‘가격 넣기’에서 시술을 고르세요.";
+  const cached=exKoCache()[AI_EX[idx].slice(0,60)];
+  const koTail=koT.length?"\n"+koT.join("\n"):"";
+  let ko=cached?cached+koTail:(aiReady()?"한국어 해석 불러오는 중…":"이 답글의 한국어 해석은 병원 설정에 API 키를 넣으면 자동으로 보여요.")+koTail;
+  return {zh:zhL.join("\n"),ko,idx,koTail,needTr:!cached&&aiReady(),priceNote,n:pool.length,pos:exPos%pool.length,total:exCnt(state.type)};
+}
 function generate(){
-  lastR=build(state.a,state.type);
-  const zh=lastR.lines.map(l=>l.zh).join("\n"),ko=lastR.lines.map(l=>l.ko).join("\n");
+  const ex=exReply();
+  let zh,ko;
+  if(ex){lastR={lines:[],fromEx:true,idx:ex.idx,koTail:ex.koTail,priceNote:ex.priceNote};zh=ex.zh;ko=ex.ko;
+    $("srcNote").textContent=`‘${TYPES[state.type].name}’ 분류의 실제 답글 ${ex.total}개 중 원글과 가장 비슷한 순서예요 (${ex.pos+1}/${ex.n}). ‘문구 바꾸기’로 다음 답글을 볼 수 있어요.`;
+    if(ex.needTr)setTimeout(()=>translateEx(ex.idx),0);}
+  else{lastR=build(state.a,state.type);zh=lastR.lines.map(l=>l.zh).join("\n");ko=lastR.lines.map(l=>l.ko).join("\n");
+    $("srcNote").textContent=`‘${TYPES[state.type].name}’ 분류에 해당하는 실제 답글이 아직 없어서 기본 템플릿으로 만들었어요. 이런 답글을 다음 업데이트 때 보내 주시면 추가할게요.`;}
   $("outZh").value=zh;$("outKo").textContent=ko;state.edited=false;$("koNote").hidden=true;
-  $("copyBtn").disabled=false;$("rerollBtn").disabled=false;$("copyMsg").textContent="";
+  $("copyBtn").disabled=false;$("rerollBtn").disabled=false;$("aiBtn").disabled=false;$("copyMsg").textContent="";$("aiUndo").hidden=true;aiPrev=null;if(aiCtl){aiCtl.abort();aiCtl=null;}$("aiStatus").textContent="";$("aiStatus").className="kw";
   check(zh,lastR);
 }
-let sampleFn=null,trCtl=null,trOff=false;
+let sampleFn=null,trCtl=null,trOff=false,aiCtl=null,aiPrev=null;
 (async()=>{try{sampleFn=window.claude?await window.claude.use("sample"):null;}catch(e){sampleFn=null;}})();
+const AIKEY="gj-ai";
+function aiCfg(){try{return JSON.parse(localStorage.getItem(AIKEY)||"{}")||{};}catch(e){return {};}}
+function aiStore(c){try{localStorage.setItem(AIKEY,JSON.stringify(c));return true;}catch(e){return false;}}
+function aiReady(){return !!(aiCfg().key||sampleFn);}
+async function callAI(system,user,opt={}){
+  const c=aiCfg();
+  if(c.key){
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",signal:opt.signal,headers:{"content-type":"application/json","x-api-key":c.key,"anthropic-version":"2023-06-01","anthropic-dangerous-direct-browser-access":"true"},body:JSON.stringify({model:opt.model||c.model||"claude-sonnet-5-5",max_tokens:opt.max||1200,system,messages:[{role:"user",content:user}]})});
+    if(!r.ok){let m="";try{const j=await r.json();m=(j.error&&j.error.message)||"";}catch(e){}const err=new Error(m);err.status=r.status;throw err;}
+    const j=await r.json();return (j.content||[]).filter(b=>b.type==="text").map(b=>b.text).join("");
+  }
+  if(sampleFn){const {text}=await sampleFn(system+"\n\n"+user,{modelTier:opt.quick?"quick":"default",signal:opt.signal});return text;}
+  const e=new Error("no-ai");e.status=0;throw e;
+}
+function aiErrMsg(e){
+  if(!e||e.name==="AbortError"||e.code==="aborted")return "";
+  if(e.message==="no-ai")return "병원 설정에서 API 키를 먼저 넣어 주세요.";
+  if(e.code==="not_granted")return "AI 사용이 허용되지 않았어요.";
+  const s=e.status;
+  if(s===401)return "API 키가 올바르지 않아요. 병원 설정에서 키를 다시 확인해 주세요.";
+  if(s===403)return "이 API 키로는 쓸 수 없어요. Anthropic 콘솔에서 키 권한을 확인해 주세요.";
+  if(s===404)return "선택한 AI 모델을 찾을 수 없어요. 병원 설정에서 다른 모델을 골라 보세요.";
+  if(s===400&&/credit|balance/i.test(e.message||""))return "API 크레딧이 부족해요. Anthropic 콘솔에서 잔액을 충전해 주세요.";
+  if(s===429)return "요청이 많아요. 잠시 후 다시 눌러 주세요.";
+  if(s>=500)return "AI 서버가 바빠요. 잠시 후 다시 눌러 주세요.";
+  if(e instanceof TypeError)return "AI 서버에 연결하지 못했어요. 인터넷 연결을 확인해 주세요.";
+  return "AI 답글을 만들지 못했어요"+(e.message?": "+e.message:".");
+}
 async function translatePost(text){
   const box=$("postKo"),out=$("postKoText");
   if(trCtl)trCtl.abort();
   const han=(text.match(/[가-힣]/g)||[]).length, cjk=(text.match(/[\u4e00-\u9fff]/g)||[]).length;
-  if(trOff||!sampleFn||han>=cjk){box.hidden=true;return;}
+  if(trOff||!aiReady()||han>=cjk){box.hidden=true;return;}
   box.hidden=false;out.textContent="해석하는 중...";
   const ctl=trCtl=new AbortController();
   try{
-    const {text:t}=await sampleFn(`다음 대만 스레드 글을 자연스러운 한국어로 번역해. 의미만 정확히, 이모지는 유지, 설명·머리말 없이 번역문만 출력해.\n\n${text}`,{modelTier:"quick",signal:ctl.signal,onText:({text:x})=>{if(trCtl===ctl)out.textContent=x;}});
-    if(trCtl===ctl)out.textContent=t;
+    const t=await callAI("너는 번역가다. 설명이나 머리말 없이 번역문만 출력한다.",`다음 대만(번체 중국어) 스레드 글을 자연스러운 한국어로 번역해. 의미만 정확히, 이모지는 유지.\n\n${text}`,{model:"claude-haiku-5-5",quick:true,max:700,signal:ctl.signal});
+    if(trCtl===ctl)out.textContent=t.trim();
   }catch(e){
-    if(trCtl!==ctl||e.code==="aborted")return;
+    if(trCtl!==ctl)return;const m=aiErrMsg(e);if(!m){return;}
     if(e.code==="not_granted"){trOff=true;box.hidden=true;return;}
-    out.textContent=e.code==="rate_limited"?"요청이 많아 해석을 잠시 못 했어요. 잠시 후 다시 ‘답글 만들기’를 눌러 주세요.":"해석을 불러오지 못했어요.";
+    out.textContent="해석을 불러오지 못했어요. "+m;
   }
 }
+function aiPrompt(){
+  const a=state.a;
+  const sel=[...state.priceSel].map(id=>ALL().find(p=>p.id===id)).filter(p=>p&&P(p).krw);
+  const prices=sel.map(p=>{const v=P(p);return `${v.zh}${v.unit?" "+v.unit:""}: ${money(v.krw).zh}`;});
+  const procs=ALL().map(p=>`- ${P(p).zh} (${p.ko}): ${p.effZh}`).join("\n");
+  const info=[`병원명: ${S.clinic||"(미입력)"}`,`도시: ${S.city||"(미입력)"}`,`위치: ${S.loc||"(없음 — 위치를 언급하지 말 것)"}`,`중국어 상담: ${S.zh?"가능":"불가 — 언급하지 말 것"}`,`원장 직접 상담·시술: ${S.doc?"예":"아니오 — 언급하지 말 것"}`].join("\n");
+  const system=`너는 한국 서울의 피부과 골드제이(GOLD J)의 해외 SNS 담당자다. 대만 유저에게 대만식 번체 중국어(繁體中文, 臺灣用語)로 답한다. 간체자는 쓰지 않는다. '小編' 말투와 '妳'는 써도 된다. 금지: 水水·寶寶·脆蜜 같은 호칭, 🌸 이모지(어디에도 쓰지 않음), 💛 나이 표시, '歡迎主頁了解我們' 같은 경쟁사 반복 문구.
+규칙:
+1. 원글을 꼼꼼히 읽고, 원글의 구체적인 내용(일정·시기, 예산, 걱정, 언급한 시술·장소·감정)에 직접 반응하는 첫 문장으로 시작한다. 누구에게나 붙일 수 있는 일반 문장으로 시작하지 않는다.
+2. 템플릿 초안의 흐름(공감 → 원글 질문에 대한 실제 답 → 병원 차별점 → 가격(목록이 있을 때만) → 부드러운 마무리)은 참고하되, 문장은 원글에 맞춰 새로 쓴다. 초안 문장을 그대로 복사하지 않는다.
+3. 병원 정보·시술 목록·가격 목록에 없는 사실(가격, 장비, 의사 경력·자격, 수상, 위치, 이벤트, 할인)은 절대 지어내지 않는다.
+4. 의학·여행 일반 정보는 정확한 것만 쓰고, 효과·유지 기간은 개인차가 있다고 말한다.
+5. 금지 표현: ${RISK.map(r=>r[0]).join(", ")}. 효과 보장, 최상급, 타 병원·타 장비 비교, 부작용·통증·회복기간 없음 단정, 영구 효과도 금지.
+6. 직원이 직접 받아 본 느낌 같은 개인 경험은 지어내지 말고 [ ] 빈칸으로 남긴다. 그 외에는 [ ] 빈칸을 남기지 않는다.
+7. 원글이 시술·여행과 무관한 일상 글이면 홍보 없이 따뜻한 공감 1~2문장만 쓴다.
+8. 전체 500자 이내. 이모지는 2~4개 정도(🥰💕🤍😊🥹✨🤣), 문장 끝은 哦～/喔～/唷～/呀～/啦～처럼 다정하게. 짧은 줄바꿈으로 읽기 쉽게.
+10. [우리 실제 답글 예시]의 말투·길이·흐름을 가장 우선으로 따른다. 다만 예시 문장을 그대로 복사하지 말고 원글에 맞게 새로 쓴다. 여행·일상 글이면 예시처럼 먼저 진심으로 공감하고 구체적인 팁(날씨·옷차림·음식·장소)을 준 뒤, 시술 얘기는 한 줄 이하로 자연스럽게 붙인다${S.promo===false?' — 이번에는 시술 얘기를 넣지 말 것':''}. 브랜드명은 병원 정보의 병원명 그대로 쓴다. 예시는 위쪽이 최신이니 위쪽 말투를 더 우선한다. 예약·가격 안내는 '官方 LINE'으로 유도할 수 있다. 예시에 있는 '代表院長', 'TOUCH UP KISS', '100% 預約制' 같은 우리 표현은 그대로 써도 된다. 간체자 예시가 섞여 있어도 답글은 번체로 쓴다.
+9. 출력은 JSON 하나만: {"reply":"게시할 답글","ko":"답글의 자연스러운 한국어 해석"}`;
+  const user=`[원글]\n${state.text}\n\n[분류 유형] ${state.type} ${TYPES[state.type].name}\n\n[병원 정보]\n${info}\n\n[시술 목록 (이 이름 그대로 쓸 것)]\n${procs}\n\n[답글에 넣을 가격]\n${prices.length?prices.join("\n")+(S.tax?`\n(${S.tax})`:""):"없음 — 금액을 쓰지 말 것. 원글이 가격을 물으면 DM으로 안내."}\n\n[템플릿 초안]\n${$("outZh").value}\n\n[우리 실제 답글 예시]\n${exText()}`;
+  return {system,user};
+}
+function exText(){let out="",n=0;for(const e of AI_EX){if(out.length+e.length>16000)break;out+=`---\n${e}\n`;n++;}return out;}
+function parseAI(t){
+  const m=t.match(/\{[\s\S]*\}/);
+  if(m){try{const j=JSON.parse(m[0]);if(j.reply)return {reply:String(j.reply).trim(),ko:String(j.ko||"").trim()};}catch(e){}}
+  return {reply:t.trim(),ko:""};
+}
+let aiArm=false;
+async function aiRewrite(){
+  const st=$("aiStatus"),btn=$("aiBtn");
+  if(!state.a)return;
+  if(!aiReady()){st.className="err";st.textContent="병원 설정에서 Anthropic API 키를 넣고 ‘키 저장’을 눌러 주세요.";setTab("set");$("settingsBox").open=true;setTimeout(()=>$("aiKey").scrollIntoView({block:"center"}),50);return;}
+  if(state.edited&&!aiArm){aiArm=true;btn.textContent="수정한 내용이 바뀌어요. 한 번 더 누르기";setTimeout(()=>{aiArm=false;btn.textContent="AI 맞춤 답글";},4000);return;}
+  aiArm=false;btn.textContent="AI 맞춤 답글";
+  if(aiCtl)aiCtl.abort();const ctl=aiCtl=new AbortController();
+  const before={zh:$("outZh").value,ko:$("outKo").textContent};
+  btn.disabled=true;st.className="kw";st.textContent="AI가 원글을 읽고 답글을 쓰는 중이에요… (10~30초)";
+  try{
+    const p=aiPrompt();const t=await callAI(p.system,p.user,{signal:ctl.signal,max:1200});
+    if(aiCtl!==ctl)return;
+    const r=parseAI(t);
+    aiPrev=aiPrev||before;
+    $("outZh").value=r.reply;$("outKo").textContent=r.ko||"(해석 없음)";state.edited=false;$("koNote").hidden=true;
+    $("aiUndo").hidden=false;st.className="kw";st.textContent="AI 맞춤 답글이에요. 게시 전에 꼭 한 번 읽어 주세요.";
+    check(r.reply,{priceNote:lastR&&lastR.priceNote,warnExp:lastR&&lastR.warnExp});
+  }catch(e){
+    if(aiCtl!==ctl)return;const m=aiErrMsg(e);if(m){st.className="err";st.textContent=m;}
+  }finally{if(aiCtl===ctl){aiCtl=null;btn.disabled=false;}}
+}
+$("aiBtn").addEventListener("click",aiRewrite);
+$("exCount").textContent=AI_EX.length+"개";$("exDate").textContent=AI_EX_UPDATED;
+$("aiUndo").addEventListener("click",()=>{if(!aiPrev)return;$("outZh").value=aiPrev.zh;$("outKo").textContent=aiPrev.ko;aiPrev=null;$("aiUndo").hidden=true;$("aiStatus").textContent="기본 답글로 되돌렸어요.";$("aiStatus").className="kw";state.edited=false;check($("outZh").value,lastR);});
+(function(){const c=aiCfg();$("aiKey").value=c.key||"";if(c.model)$("aiModel").value=c.model;
+  const msg=$("aiMsg");msg.textContent=c.key?"키가 저장돼 있어요.":"키가 없어요.";
+  $("aiSaveBtn").addEventListener("click",()=>{const key=$("aiKey").value.trim();if(!key){msg.textContent="키를 입력해 주세요.";return;}
+    const ok=aiStore({key,model:$("aiModel").value});msg.textContent=ok?(key.startsWith("sk-ant-")?"키를 저장했어요.":"저장했어요. 보통 sk-ant-로 시작하는데 한 번 확인해 주세요."):"이 브라우저에서 저장할 수 없어요.";});
+  $("aiModel").addEventListener("change",()=>{const c2=aiCfg();c2.model=$("aiModel").value;aiStore(c2);msg.textContent="모델을 바꿨어요.";});
+  $("aiDelBtn").addEventListener("click",()=>{aiStore({model:$("aiModel").value});$("aiKey").value="";msg.textContent="키를 삭제했어요.";});
+})();
 const mq=matchMedia("(max-width:760px)");
 function setTab(t){
   document.querySelectorAll("[data-pane]").forEach(el=>el.classList.toggle("on",el.dataset.pane===t));
@@ -626,7 +875,7 @@ setTab("in");
 function run(auto){
   const text=$("post").value.trim();
   if(!text){$("outZh").value="";$("outZh").placeholder="원글을 먼저 붙여넣어 주세요.";return;}
-  state.text=text;state.priceSel.clear();renderPriceChips();state.a=analyze(text);state.type=state.a.type;seed=(Date.now()%2147483646)+1;
+  state.text=text;state.priceSel.clear();renderPriceChips();state.a=analyze(text);state.type=state.a.type;seed=(Date.now()%2147483646)+1;exRank=rankEx(text,state.type);exPos=0;
   renderAnalysis();generate();
   if(auto!==true)translatePost(text);else $("postKo").hidden=true;
   if(auto!==true&&mq.matches)setTab("out");
@@ -634,7 +883,7 @@ function run(auto){
 $("goBtn").addEventListener("click",()=>run());
 let editT=null;
 $("outZh").addEventListener("input",()=>{if(!lastR)return;state.edited=true;$("koNote").hidden=false;$("copyMsg").textContent="";clearTimeout(editT);editT=setTimeout(()=>check($("outZh").value,{priceNote:lastR.priceNote,warnExp:lastR.warnExp}),300);});
-$("rerollBtn").addEventListener("click",()=>{if(state.edited&&!confirmReroll())return;seed=(seed+7919)%2147483646+1;generate();});
+$("rerollBtn").addEventListener("click",()=>{if(state.edited&&!confirmReroll())return;seed=(seed+7919)%2147483646+1;if(lastR&&lastR.fromEx)exPos++;generate();});
 function confirmReroll(){const b=$("rerollBtn");if(b.dataset.armed){delete b.dataset.armed;b.textContent="문구 바꾸기";return true;}b.dataset.armed="1";b.textContent="수정한 내용이 사라져요. 한 번 더 누르기";setTimeout(()=>{delete b.dataset.armed;b.textContent="문구 바꾸기";},4000);return false;}
 $("clearBtn").addEventListener("click",()=>{$("post").value="";$("post").focus();});
 $("post").addEventListener("keydown",e=>{if((e.metaKey||e.ctrlKey)&&e.key==="Enter")run();});
@@ -645,19 +894,6 @@ $("copyBtn").addEventListener("click",async()=>{
   catch(e){$("outZh").focus();$("outZh").select();$("copyMsg").textContent="선택해 뒀어요. Ctrl+C로 복사하세요";}
 });
 
-/* 예시 원글 (스크린샷 유형을 바탕으로 다시 쓴 예시) */
-const SAMPLES=[
-  ["예시 · 추천+가격","11月要去韓國做醫美！想做美版音波＋黃金微針，想找價格合理、醫師操作仔細、不會一直推銷的診所，有做過的可以直接丟診所跟活動價給我嗎？"],
-  ["예시 · 가격 비교","台灣打美國音波300發大概5萬，韓國居然不到一半價格，機票算進去還是比較划算吧？"],
-  ["예시 · 35+ 고민","35+第一次去韓國做醫美推薦什麼？下顎線越來越不清楚，毛孔也變粗了"],
-  ["예시 · 상식","在台灣美國音波都是600發起跳，但韓國院長說300發就夠了，是因為韓國喜歡自然嗎？"],
-  ["예시 · 통증","11月底要去首爾，怕痛又不會韓文，求推薦有中文翻譯的醫美診所"],
-  ["예시 · 적합 여부","想要減少法令紋要打音波還是啥？到底適合音波還是超微波？"],
-  ["예시 · 홈케어","皮膚好的秘訣有什麼？為什麼別人的皮膚都像開磨皮那樣"],
-  ["예시 · 부산","釜山有沒有推薦的醫美診所？想做黃金微針"]
-];
-$("samples").innerHTML=SAMPLES.map((s,i)=>`<button class="chip" data-s="${i}">${s[0]}</button>`).join("");
-$("samples").querySelectorAll("[data-s]").forEach(b=>b.addEventListener("click",()=>{$("post").value=SAMPLES[b.dataset.s][1];run();}));
 
 const REFS=[
   {h:"kleam_shin",n:"Kleam 피부과 · 홍대·명동"},
@@ -671,7 +907,7 @@ const REFS=[
 $("refList").innerHTML=REFS.map(r=>`<li><a href="https://www.threads.com/@${r.h}" target="_blank" rel="noopener noreferrer"><span class="h">@${esc(r.h)}</span>${r.n?`<span class="n">${esc(r.n)}</span>`:""}</a></li>`).join("");
 
 bindSettings();
-$("post").value=SAMPLES[0][1];run(true);
+renderPriceChips();
 
 })();
 </script>
